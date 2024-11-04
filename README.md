@@ -14,6 +14,52 @@ How to play werewolf if you don't remember: https://www.youtube.com/watch?v=dd2s
 
 API Keys: your team should have recieved by email.
 
+### 0. Pulling from main repo:
+```
+Since you imported their repository instead of forking, your repository isn’t directly linked to theirs. However, you can still pull in updates from their repository by setting it as a remote in your local copy. Here’s a step-by-step guide:
+
+	1.	Navigate to your repository: Open your terminal and go to your local clone of your repository.
+
+cd werewolf-agi-house-2024
+
+
+	2.	Add their repository as an additional remote: You’ll add their repository as an “upstream” remote so you can pull updates from it.
+
+git remote add upstream https://github.com/sentient-agi/werewolf-template.git
+
+
+	3.	Fetch the updates from the upstream repository:
+
+git fetch upstream
+
+This command will fetch all branches and updates from the upstream repository without merging them into your working code. You’ll see a list of branches from upstream if there are any.
+
+	4.	Merge the changes:
+	•	If you want to bring updates from a specific branch (e.g., main), you can merge those changes into your branch.
+	•	Make sure you’re on the branch in your repo where you want to bring in the changes. If that’s main, you’d do:
+
+git checkout main
+
+
+	•	Then, merge the updates from upstream/main into your main branch:
+
+git merge upstream/main
+
+
+This may create conflicts if you’ve made changes to the same lines they modified. Git will alert you to these, and you’ll need to resolve any conflicts manually.
+
+	5.	Push the changes to your GitHub repository: After merging, if everything looks good and you’ve resolved any conflicts, push the updated branch to your GitHub repository.
+
+git push origin main
+
+
+
+From now on, whenever you want to pull in new changes from the original repository, you can repeat steps 3 to 5.
+
+This setup effectively allows you to “sync” with the upstream repository even though it’s not a direct fork!
+```
+
+
 ### 1. Use Template / Clone Repo and set up venv:
 ```
 git clone https://github.com/sentient-agi/werewolf-template.git
