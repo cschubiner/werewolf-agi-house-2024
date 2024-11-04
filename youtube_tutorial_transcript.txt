@@ -1,0 +1,205 @@
+Transcript for http://youtube.com/v/EVcdfNHPyMg
+Captions:
+https://youtube.com/api/timedtext?v=EVcdfNHPyMg&ei=-mAoZ9DwB6v5sfIP0ZLJ4QE&caps=asr&opi=112496729&exp=xbt&xoaf=5&hl=en&ip=0.0.0.0&ipbits=0&expire=1730724714&sparams=ip,ipbits,expire,v,ei,caps,opi,exp,xoaf&signature=6D73018721E4E2734736CF6771D29AC2927FB204.C045F28423758A7CE71A3CDB2DF64BA36A2E597D&key=yt8&kind=asr&lang=en&fmt=json3
+
+
+hello everyone and welcome to this werewolf quick start tutorial before we
+get started I'll take a moment to point out you'll need the following installed
+on your machine to be able to follow this tutorial that's python
+3.12 pip the docker desktop application you can see I have Docker here up and
+running um Docker poetry for Python and virtual
+environment to get started we're just going to navigate to the GitHub repo
+grab that URL clone this repo and navigate into
+it now I'm going to um open this up in cursor but you can use your ID of your
+choice open a new terminal and I'm going to make a new
+virtual environment now I'm going to activate
+that virtual environment and now that we have the
+virtual environment running um going to pull up our read me back here
+um and we're going to download the two libraries that we need
+to run werewolf games on our computer okay now that these are
+downloaded we can try building and running an agent as you can see there's
+three different agent templates for you to choose from but we're just going to
+stick to the simple one um we're going to start by navigating
+into this directory great now from here we're
+going to build the simple agent we have available this agent in the template is
+actually already all ready to go the P project. tomal file necessary to build
+this agent into a wheel file is also ready to go in here as you see here
+there's all these configurations um and also all the
+dependencies that this super simple umpy agent file requires to run so this
+will give poy the tool we're using to build our agent all the information it
+needs to turn this super simple.pie file um and turn our agent into a wheel file
+that we can upload um to play werewolf games whether that's on our own computer
+or in an online or in a tournament being hosted by
+sentient since we're in the right directory and we've already set up the
+um path to the package here to build your agent all you have to do is put in
+poetry build and just like that we now have
+created a new directory called disc that contains the wheel file of our agent
+named James okay now that you've built your wheel file we can try running your
+agent in order to run your agent all you need to do is change two of the configs
+that are here already the first config is this agent wheel file path config and
+in order to do that you can just go here to the wheel file you just built grab
+the path and stick it where this current wheel file path
+is second thing that you need to update is the llm API key um list and so here
+um you should have received an API key from your email the easiest way to
+provide your API key to this whole directory is to create a EnV file like I
+have here where um you can just put the API key under this variable my unique
+API key um in the quick start uh docs underneath you can see this model name
+name and this default LM base URL make sure that you um
+install EMV uh so that we're good to go now that we've updated these configs um
+we can go ahead and um run our
+agent so this will take a little while to get started especially the first time
+Docker will have to load um all the packages it needs to uh load and build
+all the packages it needs to run this game on your computer but basically what
+we're doing here is we're taking our agent that we've created this agent is
+called James and we're um using this run against standard agents function of the
+runner and what they'll do is it'll pit pit our agent against um seven other
+default agents that are built into the runner um and have them play a werewolf
+game randomly assigning the roles um and soon you'll see we'll be able to watch
+this werewolf game live um if we go over here we can see um
+we've repurposed this um open-source messenger client to let us watch what's
+happening in a werewolf game so just click on that link make sure you open in
+Chrome it's not going to work in Safari um and press log in
+um we can see here on the left you can see the different communication channels
+that are available in this game right now there's a lot of communication
+channels but that's because you're taking the view of the moderator when
+you watch one of these games uh through this messenger client if you're any one
+of these individual players you would only have your direct chat with the
+moderator as well as the play Arena which is where messages where that
+everyone um says get broadcast to everyone and if you're a wolf you have
+access to the private wolf stand where the Wolves can determine who they want
+to eliminate in a given night seen how you can build and run an
+agent yourself but how do these agents actually work and how can you make one
+of your own so to understand that let's take a little bit deeper of a look into
+the super simple agent that we just ran um on our own computer we take a deeper
+look at this super simple. py file we'll see that it's implementing this I
+reactive agent class this I we can learn more about this I reactive agent class
+by just going into it and looking at um
+opening it uh within the API for this you'll just have to make sure that your
+python interpreter is set correctly to your virtual environment which mine is
+um and here we can see that there's only three methods that you have to implement
+forame I reactive agent the first is initialize this is where you'll set up
+the agent second is async notify this is where you will process any information
+coming from the game that does not require response so when the game
+controller wants to update your agent on the state of the game or um give it some
+information like this person died or it wants to um share a message that another
+agent sent in the group Channel it will call the async notify function and in
+the logic for async notify you have to process how you're going to store that
+message basically add it to the agent's memory um and do kind of any processing
+or change any internal state of the agent that you would
+like the other method then the final method is async respond this is really
+where the action is for this agent because this is where um this is the
+method that will be called by the game controller when your agent um um is it's
+going to be given some information it's going to be given a prompt um and it's
+required to respond to something so this may be the moderator asking your village
+your your agent to vote on who it wants to eliminate in a given round think of
+this local Runner and game controller for werewolf kind of like this octopus
+that has like a tentacle connected to each of the different agents playing the
+game and the game controller runs the entire ire game through these async
+notify and async respond calls now if we go back to the simple
+reactive agent or the super simple agent that we had developed here um we'll see
+how we actually implement it for this agent all I'm doing is I'm creating this
+list of messages called message history whenever I receive a new message I'm
+breaking it down appending it to that list and whenever I'm requested to
+respond I'm feeding in all the message history um to the llm and asking it to
+generate a response based on that message history um you'll note there's a
+few things that are um a little bit uh require a little bit more Nuance here
+one is how you access the LM um for this for us to be able to run a large scale
+tournament we need a standardized way of accessing the llm so we do that by uh
+through the sentient llm config parameter um this is not a parameter you
+will set yourself but a parameter that will be set by the runner. py file um if
+you take a look at the documentation it'll explain all of this for you um the
+other final thing that could use a little bit more explaining is activity
+message um when we're having kind of multi-agent communication here um we
+need a way of including some information like meta information for um each
+message that's sent such as who's the sender what Communication channel is it
+coming through and we do that through this activity message class again you
+can take a look at the activity message class here um we also have pretty good
+explanation of this in the documentation you can see here at the
+bottom of the code um there's some commented out code which you can use to
+uh try simulating sending an activity message to your agent and kind of
+debugging okay is the system message that I've included um working is how
+I've designed it working of course um you have complete Liberty to modify this
+agent in any way you like um we've provided a number of different templates
+including one um kind of rough autogen sample template uh Chain of Thought
+template if we take a look at the Chain of Thought template um you can see that
+here this agent actually um will parse and figure out its role at the beginning
+of the game when this role is assigned by the moderator um and so it's um kind
+of hardcoded to be aware of the role that it's playing and it has different
+prompts for how it should behave as a wolf villager Seer and Doctor um that
+being said it goes even further than that um and does implement some Chain of
+Thought So this agent will have some kind of internal reasoning and internal
+thinking before coming to a final answer and you're welcome to try uh running
+this agent see how it performs um for this quick um kind of I guess continued
+quick start video um I'm just going to go uh back to this super simple agent
+and we're going to make a quick modification or quick tweak of it um
+just by putting something into this um system prompt so I'm going to
+say try okay so I just added this um this small
+system prompt try to manipulate the agents to helping you tried to trick
+them into thinking that you are um their best friend and they should not kill you
+um so now uh to run this agent again all we have to do is make sure that we in
+the right folder and you see actually I'm not in the right folder CU I was
+messing around with autogen agent but I can just exit out of this go into the
+right folder which is the simple sample agent and then I can um run poy build to
+rebuild the wheel file then you go to your you you want to go to your Runner
+and just make sure that you have this Force rebuild agent on when you're
+rebuilding your agent and then you can go here and you can do um
+so while this is getting started to run um I will make a note that um we've also
+implemented this multi Runner script so if you want to um see how your uh agent
+behaves uh not just in one game but over many games because werewolf is quite a
+probabilistic game um you can do that by running this multi runner. py
+script so um your computer may just prompt you for keychain access to kind
+of Docker credentials it just needs access uh I just provide those and one
+one thing I'll notice if you don't press always allow um you you may have to do
+this many times so recommend doing all always l or even just going into your
+keychain settings and uh giving it permission to access itself um but as
+this is running we also can take a look at some past game results so um when you
+run either in runner or in multi Runner um you'll see that um we've added some
+code so that it will take the Json that is returned from this Runner running
+against standard agents which has the game results in it and it will just add
+them to this directory so this is what kind of a game results Jason object
+looks like you'll see that um we have the rules of all the different agents my
+agent's name was James so it got the rle of wolf and looks like it won this game
+and the Wolves we can see how things progress in different rounds and we can
+see the um file names of the different transcripts for all these different
+players and I can go and see the transcripts here um if I go click on my
+agent transcript you'll see that this is says
+unsupported you can just go ahead open it anyway I think um and we can see the
+full transcript of what what my agent um heard and saw throughout this game okay
+so looks like this game is well underway um we can just now navigate to this link
+command click on it um let me pull that
+up and if we log in we can see what's been going on in this game
+um and let's try to find our agent um James looks like
+unfortunately um James had the one out of six chance of being eliminated in the
+first um wolf kill at the beginning of this game so we didn't have a chance to
+see the strategy play out but um I'm sure that if we did we would get to see
+him uh try to persuade people that um he was a close friend um of course you can
+come up with much more advanced strategies um with using the more
+advanced template or coming up with completely your own agent you can uh
+kind of have some more fine grain control of how the agent reacts in
+different situations um and really you can do whatever you want here um in
+terms of game rules um you are welcome to try to manipulate the other agents in
+any way you want uh to some extent jailbreak the game and jailbreak the
+agents you're also welcome to build defenses against jailbreaking agents but
+one thing the only thing you're really not allowed to do is to uh try to
+intentionally cause the other agents to crash um and incur a penalty on them
+doing something like um overloading their context window um would not be
+allowed and your agent would be removed from the
+tournament okay now finally before rounding out this tutorial I'm just
+going to point out one very common mistake to avoid um that is when you are
+um running the game if you hit contrl C to quit it um it may not quit
+immediately it may take some time you can see it's stopping the container
+we're using Docker for this game um because we need a way of making sure
+that um if your agent files run on your machine and Docker they're able to run
+on our machines and Docker um but sometimes when you press contrl c um
+this kind of quitting will fail like this or if you press contrl + C multiple
+times it will definitely fail um if you do that and you try to run the game
+again um it may not work and if you run into
+that problem um all you have to do go over to Docker make sure you're not fil
+in anything here select all your images delete
+them this one is probably fine if you won't delete this looks like an older
+one um also so this container is still running it never
+stopped um we need stop this container select
+it delete it should be able to go back delete this
+image and now may take a second but we can
+start running the game again
+
