@@ -16,6 +16,12 @@ API Keys: your team should have recieved by email.
 
 ### 0. Pulling from main repo:
 ```
+TLDR;
+
+git fetch upstream && git merge upstream/main
+
+---------- more info: ------------------------
+
 Since you imported their repository instead of forking, your repository isn’t directly linked to theirs. However, you can still pull in updates from their repository by setting it as a remote in your local copy. Here’s a step-by-step guide:
 
 	1.	Navigate to your repository: Open your terminal and go to your local clone of your repository.
