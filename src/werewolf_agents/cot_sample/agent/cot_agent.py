@@ -476,11 +476,12 @@ Respond accordingly."""
                 {"role": "system", "content": f"You are a {self.role.capitalize()} in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7
+            temperature=0.0
         )
 
         action = response.choices[0].message.content.strip()
         logger.info(f"Discussion action: {action}")
+        logger.info(f"ZZZZ - Discussion prompt: {prompt}")
         return action
 
     def _get_vote_response_for_common_room(self, message):
@@ -538,6 +539,7 @@ Respond with the **name** of the player you choose to eliminate, and optionally 
 
         action = response.choices[0].message.content.strip()
         logger.info(f"Vote action: {action}")
+        logger.info(f"ZZZZZ YYYYY - Vote prompt: {prompt}")
         return action
 
     def _get_response_for_wolf_channel_to_kill_villagers(self, message):
