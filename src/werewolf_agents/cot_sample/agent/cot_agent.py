@@ -336,16 +336,24 @@ Do not include any additional text. """
         pass
 
 
+    def get_last_x_messages_from_seer_chat_as_string(self, x: int) -> str:
+        """
+        Retrieve the last 'x' messages from the Seer's direct messages with the moderator.
+        """
+        seer_chat = self.direct_messages.get(self.MODERATOR_NAME, [])
+        last_messages = seer_chat[-x:]
+        return "\n".join(last_messages)
+
     def _get_response_for_seer_guess(self, message):
         seer_checks_info = "\n".join([f"Checked {player}: {result}" for player, result in self.seer_checks.items()])
-        game_situation = f"{self.get_last_x_messages_from_interwoven_history_as_string(x=5)}\n\nMy past seer checks:\n{seer_checks_info}"
+        seer_chat_history = self.get_last_x_messages_from_seer_chat_as_string(x=10)
+        game_situation = f"My recent interactions with the moderator:\n{seer_chat_history}\n\nMy past seer checks:\n{seer_checks_info}"
 
         prompt = f"""{self.SEER_PROMPT}
 
-Current game situation:
 {game_situation}
 
-Based on the current game situation, choose a player to investigate. Choose someone you haven't checked before if possible.
+Based on your investigations and the information from the moderator, choose a player to investigate next. Choose someone you haven't checked before if possible.
 
 Respond with the **name** of the player you choose to investigate, and no additional text."""
 
@@ -407,10 +415,24 @@ From this conversation, list the names of your allies. Do not mention any roles 
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
 
-        # Add Seer's investigation results to the prompt if agent is Seer
         if self.role == "seer":
-            seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
-            role_prompt += f"""
+            # Check if any player has been identified as a Werewolf
+            identified_werewolves = [player for player, role in self.seer_checks.items() if role.lower() == 'werewolf']
+            if identified_werewolves:
+                # Instruct the model to accuse the identified Werewolf
+                accused_player = identified_werewolves[-1]  # Use the most recently identified Werewolf
+                role_prompt += f"""
+
+Important:
+- You have strong evidence that {accused_player} is a werewolf based on your observations.
+- Accuse {accused_player} vigorously of being a werewolf.
+- Mention that their behavior has been very suspicious.
+- Do not reveal that you are the Seer.
+"""
+            else:
+                # Include past investigations if no Werewolves identified
+                seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+                role_prompt += f"""
 
 My past investigations:
 {seer_checks_info}
