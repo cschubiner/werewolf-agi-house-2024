@@ -344,6 +344,35 @@ Do not include any additional text. """
         last_messages = seer_chat[-x:]
         return "\n".join(last_messages)
 
+    def get_messages_since_voting_began_as_string(self) -> str:
+        """
+        Retrieve all messages from the interwoven game history since the most recent voting phase began.
+        
+        Returns:
+            str: A string containing all messages since voting began.
+        """
+        interwoven_history_array = self.get_interwoven_history_array(include_wolf_channel=False)
+        messages_since_voting = []
+        voting_start_found = False
+
+        # Iterate backward through the interwoven history
+        for message in reversed(interwoven_history_array):
+            # Check if the message is from the moderator and contains "vote"
+            if f"From - {self.MODERATOR_NAME}" in message and "vote" in message.lower():
+                voting_start_found = True
+                # Include this message as the start of voting phase
+                messages_since_voting.insert(0, message)
+                break
+            else:
+                # Prepend messages to maintain chronological order
+                messages_since_voting.insert(0, message)
+        
+        if voting_start_found:
+            return "\n".join(messages_since_voting)
+        else:
+            # If voting hasn't begun, return an empty string or a default message
+            return "Voting phase has not begun yet."
+
     def _get_response_for_seer_guess(self, message):
         seer_checks_info = "\n".join([f"Checked {player}: {result}" for player, result in self.seer_checks.items()])
         seer_chat_history = self.get_last_x_messages_from_seer_chat_as_string(x=10)
@@ -515,8 +544,8 @@ Important:
 - If there are other votes in the chat history above, gang up on the same player (as long as they're not you ({self._name}) or your allies).
 """
 
-        # Get the recent game situation
-        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=4)
+        # Get the messages since voting began
+        game_situation = self.get_messages_since_voting_began_as_string()
 
         # Construct the prompt for voting
         prompt = f"""{role_prompt}
@@ -526,7 +555,7 @@ Current game situation: '''
 
 Based on the current game situation, decide on a player to vote for elimination.
 
-Respond with the **name** of the player you choose to eliminate, and optionally include EXTREMELY brief, 1-sentence reasoning."""
+Respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning."""
 
         # Call the LLM to generate a vote response
         response = self.openai_client.chat.completions.create(
