@@ -526,13 +526,13 @@ Current game situation: '''
 
 Based on the current game situation, decide on a player to vote for elimination.
 
-Respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning."""
+Respond with the **name** of the player you choose to eliminate, and optionally include EXTREMELY brief, 1-sentence reasoning."""
 
         # Call the LLM to generate a vote response
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a {self.role.capitalize()} in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
+                {"role": "system", "content": f"You are a 'villager' role in a Werewolf game."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
