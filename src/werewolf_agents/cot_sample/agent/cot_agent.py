@@ -49,7 +49,8 @@ class CoTAgent(IReactiveAgent):
     1. Blend in with villagers during day discussions.
     2. Coordinate with other werewolves to choose a target.
     3. Pay attention to the seer and doctor's potential actions.
-    4. Defend yourself if accused, but don't be too aggressive."""
+    4. Defend yourself if accused, but don't be too aggressive.
+    5. Never, under any circumstances, mention the wolf's den or any conversations that occur there."""
 
     VILLAGER_PROMPT = """You are a villager in a game of Werewolf. Your goal is to identify and eliminate the werewolves. Consider the following:
     1. Observe player behavior and voting patterns.
