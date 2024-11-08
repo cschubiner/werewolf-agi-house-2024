@@ -106,6 +106,51 @@ class CoTAgent(IReactiveAgent):
         )
         self.game_intro = None
 
+    def _update_seer_checks(self, message_text):
+        """
+        Uses the LLM to parse the moderator's message to the Seer and updates the seer's checks.
+        
+        Args:
+            message_text (str): The message content from the moderator.
+        """
+        prompt = f"""
+You are a Seer in a game of Werewolf. You received the following message from the moderator:
+
+'{message_text}'
+
+Extract the name of the player you investigated and their role (e.g., 'Villager', 'Werewolf').
+
+Respond with the player's name and role in the following JSON format:
+
+{{"player_name": "<player's name>", "role": "<player's role>"}}
+
+Do not include any additional text.
+"""
+
+        try:
+            response = self.openai_client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are an assistant that extracts information from game messages."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.2  # Optional: Set temperature to reduce randomness
+            )
+            json_response = response.choices[0].message.content.strip()
+            logger.debug(f"LLM extraction: {json_response}")
+
+            # Directly parse the JSON response
+            data = json.loads(json_response)
+            player = data["player_name"]
+            role = data["role"]
+
+            # Update self.seer_checks
+            self.seer_checks[player] = role
+            logger.info(f"Seer check updated via LLM: {player} is a {role}")
+
+        except Exception as e:
+            logger.error(f"Error using LLM to parse Seer's investigation result: {e}")
+
     async def async_notify(self, message: ActivityMessage):
         logger.info(f"ASYNC NOTIFY called with message: {message}")
         if message.header.channel_type == MessageChannelType.DIRECT:
@@ -113,11 +158,18 @@ class CoTAgent(IReactiveAgent):
             user_messages.append(message.content.text)
             self.direct_messages[message.header.sender] = user_messages
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
+            
             if message.header.sender == self.MODERATOR_NAME:
                 self.game_history_moderator.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
-            if not len(user_messages) > 1 and message.header.sender == self.MODERATOR_NAME:
-                self.role = self.find_my_role(message)
-                logger.info(f"Role found for user {self._name}: {self.role}")
+                
+                # If this is the first message, find the role
+                if not len(user_messages) > 1:
+                    self.role = self.find_my_role(message)
+                    logger.info(f"Role found for user {self._name}: {self.role}")
+                else:
+                    # Handle Seer's investigation results
+                    if self.role == 'seer':
+                        self._update_seer_checks(message.content.text)
         else:
             group_messages = self.group_channel_messages.get(message.header.channel, [])
             group_messages.append((message.header.sender, message.content.text))
@@ -353,6 +405,15 @@ From this conversation, list the names of your allies. Do not mention any roles 
 
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
+
+        # Add Seer's investigation results to the prompt if agent is Seer
+        if self.role == "seer":
+            seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+            role_prompt += f"""
+
+My past investigations:
+{seer_checks_info}
+"""
 
         # Add special instructions for werewolves
         if self.role == "wolf":
