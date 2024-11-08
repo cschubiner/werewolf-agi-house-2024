@@ -480,8 +480,8 @@ Respond accordingly."""
         )
 
         action = response.choices[0].message.content.strip()
-        logger.info(f"Discussion action: {action}")
         logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
+        logger.info(f"Discussion action: {action}")
         return action
 
     def _get_vote_response_for_common_room(self, message):
@@ -510,12 +510,13 @@ Important:
             fellow_werewolves_str = ', '.join(self.fellow_werewolves)
             role_prompt += f"""
 Important:
-- Never vote to eliminate your fellow allies: {fellow_werewolves_str}.
-- Vote to eliminate players who are not your allies.
+- Never vote to eliminate this/these players: {fellow_werewolves_str}.
+- Vote to eliminate other players. 
+- If there are other votes in the chat history above, gang up on the same player (as long as they're not you ({self._name}) or your allies).
 """
 
         # Get the recent game situation
-        game_situation = self.get_last_x_messages_from_moderator_as_string(x=2)
+        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=4)
 
         # Construct the prompt for voting
         prompt = f"""{role_prompt}
@@ -538,8 +539,8 @@ Respond with the **name** of the player you choose to eliminate, and optionally 
         )
 
         action = response.choices[0].message.content.strip()
-        logger.info(f"Vote action: {action}")
         logger.info(f"ZZZZZ YYYYY - Vote prompt: {prompt}")
+        logger.info(f"Vote action: {action}")
         return action
 
     def _get_response_for_wolf_channel_to_kill_villagers(self, message):
