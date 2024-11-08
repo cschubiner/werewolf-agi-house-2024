@@ -413,26 +413,31 @@ From this conversation, list the names of your allies. Do not mention any roles 
             logger.error(f"Error identifying fellow allies: {e}")
 
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
+        # Check if this is a vote request based on last moderator message
+        last_moderator_message = self.game_history_moderator[-1] if self.game_history_moderator else ""
+        if "vote" in last_moderator_message.lower():
+            return self._get_vote_response_for_common_room(message)
+        else:
+            return self._get_discussion_message_for_common_room(message)
+
+    def _get_discussion_message_for_common_room(self, message):
+        # Prepare the role-specific prompt
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
 
+        # Include additional logic for the seer role
         if self.role == "seer":
-            # Check if any player has been identified as a Werewolf
             identified_werewolves = [player for player, role in self.seer_checks.items() if role.lower() == 'werewolf']
             if identified_werewolves:
-                # Instruct the model to accuse the identified Werewolf
-                accused_player = identified_werewolves[-1]  # Use the most recently identified Werewolf
+                accused_player = identified_werewolves[-1]
                 role_prompt += f"""
-
 Important:
 - You have strong evidence that {accused_player} is a werewolf based on your observations.
 - Accuse {accused_player} vigorously of being a werewolf.
 - Mention that their behavior has been very suspicious.
 """
             else:
-                # Include past investigations if no Werewolves identified
                 seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
                 role_prompt += f"""
-
 My past investigations:
 {seer_checks_info}
 """
@@ -443,7 +448,6 @@ My past investigations:
                 self._identify_fellow_werewolves_via_llm()
             fellow_werewolves_str = ', '.join(self.fellow_werewolves)
             role_prompt += f"""
-
 Important:
 - Never accuse your fellow allies: {fellow_werewolves_str}.
 - Do not vote to eliminate them.
@@ -452,31 +456,88 @@ Important:
 - Keep the fact that you are an ally secret.
 """
 
+        # Get the recent game situation
         game_situation = self.get_last_x_messages_from_moderator_as_string(x=2)
 
+        # Construct the prompt for discussion
         prompt = f"""{role_prompt}
 
 Current game situation: '''
 {game_situation}'''
 
-Based on the current game situation, participate in the discussion or cast your vote.
-
-If prompted to vote, respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning.
+Based on the current game situation, participate in the discussion.
 
 Respond accordingly."""
 
+        # Call the LLM to generate a discussion message
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a Villager in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
+                {"role": "system", "content": f"You are a {self.role.capitalize()} in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+
+        action = response.choices[0].message.content.strip()
+        logger.info(f"Discussion action: {action}")
+        return action
+
+    def _get_vote_response_for_common_room(self, message):
+        # Prepare the role-specific prompt
+        role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
+
+        # Include additional logic for voting
+        if self.role == "seer":
+            identified_werewolves = [player for player, role in self.seer_checks.items() if role.lower() == 'werewolf']
+            if identified_werewolves:
+                accused_player = identified_werewolves[-1]
+                role_prompt += f"""
+Important:
+- You have strong evidence that {accused_player} is a werewolf based on your observations.
+- Vote to eliminate {accused_player} and encourage others to do the same.
+"""
+            else:
+                role_prompt += """
+Important:
+- Vote based on your suspicions from the discussions.
+"""
+
+        if self.role == "wolf":
+            if not self.fellow_werewolves:
+                self._identify_fellow_werewolves_via_llm()
+            fellow_werewolves_str = ', '.join(self.fellow_werewolves)
+            role_prompt += f"""
+Important:
+- Never vote to eliminate your fellow allies: {fellow_werewolves_str}.
+- Vote to eliminate players who are not your allies.
+"""
+
+        # Get the recent game situation
+        game_situation = self.get_last_x_messages_from_moderator_as_string(x=2)
+
+        # Construct the prompt for voting
+        prompt = f"""{role_prompt}
+
+Current game situation: '''
+{game_situation}'''
+
+Based on the current game situation, decide on a player to vote for elimination.
+
+Respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning."""
+
+        # Call the LLM to generate a vote response
+        response = self.openai_client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": f"You are a {self.role.capitalize()} in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
         )
 
         action = response.choices[0].message.content.strip()
-        logger.info(f"ZZZZZ-Discussion prompt: {prompt}")
-        logger.info(f"Discussion action: {action}")
+        logger.info(f"Vote action: {action}")
         return action
 
     def _get_response_for_wolf_channel_to_kill_villagers(self, message):
