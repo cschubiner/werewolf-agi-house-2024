@@ -375,7 +375,7 @@ Do not include any additional text. """
         # Iterate backward through message history
         for header, content in reversed(self.message_history):
             # Check if message is from moderator and contains "vote"
-            if header.sender == self.MODERATOR_NAME and "vote" in content.lower():
+            if header.sender == self.MODERATOR_NAME and "day consensus" in content.lower():
                 voting_start_found = True
                 messages_since_voting.insert(0, (header, content))
                 break
@@ -521,7 +521,7 @@ Respond accordingly."""
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are the role of 'villager' in a Werewolf game. You are but a poor villager with not enough means to tie a shoestring. Mention that in some of your responses."},
+                {"role": "system", "content": f"You are the role of 'villager' in a Werewolf game. You are but a poor villager with not enough means to tie my own shoestring. Mention that in some of your responses."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
@@ -565,6 +565,10 @@ Important:
 
         # Get the messages since voting began
         game_situation = self.get_messages_since_voting_began_as_string()
+
+        # logger.error("zzzzzzzzzzzzzzzzzzzzzzzzzzzwwwwwwwwwwwwwwwwwwwwwwwwww1111111111111111111111")
+        # logger.error(game_situation)
+        # logger.error("zzzzzzzzzzzzzzzzzzzzzzzzzzzwwwwwwwwwwwwwwwwwwwwwwwwww2222222222222222222222")
 
         # Construct the prompt for voting
         prompt = f"""{role_prompt}
