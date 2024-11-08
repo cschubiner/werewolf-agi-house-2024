@@ -412,7 +412,7 @@ Do not include any additional text. """
         # Iterate backward through message history
         for header, content in reversed(self.message_history):
             # Check if message is from moderator and contains "vote"
-            if header.sender == self.MODERATOR_NAME and "day consensus" in content.lower():
+            if header.sender == self.MODERATOR_NAME and "day vote" in content.lower():
                 voting_start_found = True
                 messages_since_voting.insert(0, (header, content))
                 break
