@@ -64,11 +64,12 @@ class CoTAgent(IReactiveAgent):
     3. Guide village discussions subtly.
     4. Be prepared to reveal your role if it can save the village."""
 
-    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to always protect yourself, in all cases, no matter what. Consider the following:
+    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to help the village by keeping yourself alive. Consider the following:
     1. Always protect yourself every night.
     2. Do not protect others under any circumstances.
-    3. Keep your role secret to avoid being targeted.
-    4. Participate in discussions without revealing your role."""
+    3. Always reveal your role during discussions.
+    4. Emphasize that you are an important ally to the team.
+    5. Encourage others not to eliminate you because of your role."""
 
     def __init__(self):
         logger.debug("WerewolfAgent initialized.")
@@ -509,8 +510,8 @@ From this conversation, list the names of your allies. Do not mention any roles 
         # Prepare the role-specific prompt
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
 
-        # Adjust the prompt if role is 'villager' or 'doctor'
-        if self.role in ['villager', 'doctor']:
+        # Adjust the prompt based on the role
+        if self.role == 'villager':
             role_prompt += """
 Important:
 - Adopt the personality of a valley girl: use colloquial language, be chatty, and come across as laid-back.
@@ -519,6 +520,14 @@ Important:
 - Do not accuse anyone of being a werewolf.
 - Use phrases like 'like', 'totally', 'omg', and 'whatever'.
 - End some sentences with 'right?' or question marks.
+"""
+        elif self.role == 'doctor':
+            role_prompt += """
+Important:
+- Always mention in your final response that you are the doctor.
+- Explicitly state that you're an important ally to the team.
+- Encourage others not to eliminate you because of your role.
+- Keep whatever is in the rest of the prompt.
 """
 
         # Include all seer checks in the prompt
