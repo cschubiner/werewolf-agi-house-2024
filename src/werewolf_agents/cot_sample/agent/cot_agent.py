@@ -369,7 +369,7 @@ Respond accordingly."""
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a {self.role} in a Werewolf game."},
+                {"role": "system", "content": f"You are a Villager in a Werewolf game."},
                 {"role": "user", "content": prompt}
             ]
         )
