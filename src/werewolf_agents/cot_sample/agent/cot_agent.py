@@ -243,9 +243,8 @@ Respond with ONLY the name of the player you choose to investigate."""
 
     def _get_response_for_doctors_save(self, message):
         # Doctor always protects themselves
-        action = self._name
-        logger.info(f"Doctor action (always self-protect): {action}")
-        return action
+        # action = self._name
+        return f"I will protect myself ({self._name})."
 
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
         if self.role == "villager":
