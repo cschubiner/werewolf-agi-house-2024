@@ -302,7 +302,7 @@ Respond with the **name** of the player you choose to investigate, and no additi
             message_to_append = ""
 
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
-        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=1)
+        game_situation = self.get_last_x_messages_from_moderator_as_string(x=1)
 
         prompt = f"""{role_prompt}
 
