@@ -277,7 +277,7 @@ Respond with the **name** of the player you choose to investigate, and no additi
             message_to_append = ""
 
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
-        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=5)
+        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=1)
 
         prompt = f"""{role_prompt}
 
@@ -300,13 +300,13 @@ Respond accordingly."""
 
         action = response.choices[0].message.content.strip()
         logger.info(f"Discussion action: {action}")
-        return action + '\n\n'
+        return action + '\n\n' + message_to_append
 
     def _get_response_for_wolf_channel_to_kill_villagers(self, message):
         if self.role != "wolf":
             return "I am not a werewolf and cannot participate in this channel."
 
-        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=5, include_wolf_channel=True)
+        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=2, include_wolf_channel=True)
 
         prompt = f"""{self.WOLF_PROMPT}
 
