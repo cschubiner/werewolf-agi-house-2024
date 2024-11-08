@@ -64,10 +64,10 @@ class CoTAgent(IReactiveAgent):
     3. Guide village discussions subtly.
     4. Be prepared to reveal your role if it can save the village."""
 
-    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Consider the following:
-    1. Decide whether to protect yourself or others.
-    2. Try to identify key players to protect (like the seer).
-    3. Vary your protection pattern to avoid being predictable.
+    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to always protect yourself, in all cases, no matter what. Consider the following:
+    1. Always protect yourself every night.
+    2. Do not protect others under any circumstances.
+    3. Keep your role secret to avoid being targeted.
     4. Participate in discussions without revealing your role."""
 
     def __init__(self):
