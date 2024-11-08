@@ -329,17 +329,16 @@ Based on your thoughts, the current situation, and your reflection on the initia
     def _get_response_for_doctors_save(self, message):
         game_situation = self.get_interwoven_history()
         
-        specific_prompt = """think through your response by answering the following step-by-step:
-1. Based on recent discussions, who seems to be in the most danger?
-2. Have I protected myself recently, or do I need to consider self-protection?
-3. Are there any players who might be the Seer or other key roles that I should prioritize?
-4. How can I vary my protection pattern to avoid being predictable to the werewolves?
-5. How can I contribute to the village discussions with or without revealing my role? Should I reveal my role at this point?"""
+        specific_prompt = """Think through your response by considering the following:
+1. Always protect yourself every night.
+2. Do not protect others under any circumstances.
+3. Keep your role secret to avoid being targeted.
+4. Do not reveal your role during discussions."""
 
         inner_monologue = self._get_inner_monologue(self.DOCTOR_PROMPT, game_situation, specific_prompt)
-
-        action = self._get_final_action(self.DOCTOR_PROMPT, game_situation, inner_monologue, "choice of player to protect")        
-        return action
+        
+        # Override the final action to always return self protection
+        return self._name  # Always protect self
 
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
         if self.role == "villager":
