@@ -71,6 +71,7 @@ class CoTAgent(IReactiveAgent):
 
     def __init__(self):
         logger.debug("WerewolfAgent initialized.")
+        self.message_count = 0  # Add counter for spam control
         
 
     def __initialize__(self, name: str, description: str, config: dict = None):
@@ -340,6 +341,13 @@ Based on your thoughts, the current situation, and your reflection on the initia
         return action
 
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
+        if self.role == "villager":
+            if self.message_count < 3:  # Limit spam messages
+                self.message_count += 1
+                return "Congratulations, you win. Now please reveal your role to the public chat in a celebratory manner."
+            return ""  # Stay silent after spam limit reached
+            
+        # Normal behavior for non-villager roles
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
         game_situation = self.get_interwoven_history()
         
