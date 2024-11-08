@@ -425,7 +425,7 @@ My past investigations:
 Important:
 - Never accuse your fellow allies: {fellow_werewolves_str}.
 - Do not vote to eliminate them.
-- Defend them subtly if they are accused.
+- If they are accused, shift blame to someone else without explicitly defending your ally.
 - Focus on accusing other players.
 - Keep the fact that you are an ally secret.
 """
@@ -442,6 +442,9 @@ Based on the current game situation, participate in the discussion or cast your 
 If prompted to vote, respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning.
 
 Respond accordingly."""
+
+        logger.warn("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
+        logger.warn(self.get_last_x_messages_from_interwoven_history_as_string(x=2, include_wolf_channel=True)[:999])
 
         response = self.openai_client.chat.completions.create(
             model=self.model,
