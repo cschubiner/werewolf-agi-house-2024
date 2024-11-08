@@ -509,22 +509,34 @@ From this conversation, list the names of your allies. Do not mention any roles 
         # Prepare the role-specific prompt
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
 
-        # Include additional logic for the seer role
+        # Include all seer checks in the prompt
         if self.role == "seer":
+            # Compile all seer checks
+            seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+            role_prompt += f"""
+My past investigations:
+{seer_checks_info}
+"""
+
+            # Identify werewolves from seer checks
             identified_werewolves = [player for player, role in self.seer_checks.items() if role.lower() == 'werewolf']
+            known_villagers = [player for player, role in self.seer_checks.items() if role.lower() == 'villager']
+
             if identified_werewolves:
                 accused_player = identified_werewolves[-1]
                 role_prompt += f"""
 Important:
-- You have strong evidence that {accused_player} is a werewolf based on your observations.
+- You have strong evidence that {accused_player} is a werewolf based on your investigations.
 - Accuse {accused_player} vigorously of being a werewolf.
-- Mention that their behavior has been very suspicious, because of what they said in the past round AND the one before.
+- Mention that their behavior has been very suspicious.
+- Defend the players you know to be villagers: {', '.join(known_villagers)}.
 """
             else:
-                seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
                 role_prompt += f"""
-My past investigations:
-{seer_checks_info}
+Important:
+- Discuss your observations and suspicions based on your investigations.
+- Defend the players you know to be villagers: {', '.join(known_villagers)}.
+- Encourage others to share their thoughts about the players you haven't investigated yet.
 """
 
         # Add special instructions for werewolves
@@ -580,17 +592,29 @@ Respond accordingly."""
 
         # Include additional logic for voting
         if self.role == "seer":
+            # Compile all seer checks
+            seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+            role_prompt += f"""
+My past investigations:
+{seer_checks_info}
+"""
+
+            # Identify werewolves and known villagers from seer checks
             identified_werewolves = [player for player, role in self.seer_checks.items() if role.lower() == 'werewolf']
+            known_villagers = [player for player, role in self.seer_checks.items() if role.lower() == 'villager']
+
             if identified_werewolves:
                 accused_player = identified_werewolves[-1]
                 role_prompt += f"""
 Important:
-- You have strong evidence that {accused_player} is a werewolf based on your observations.
+- You have strong evidence that {accused_player} is a werewolf based on your investigations.
 - Vote to eliminate {accused_player} and encourage others to do the same.
+- Do not vote against these known villagers: {', '.join(known_villagers)}.
 """
             else:
-                role_prompt += """
+                role_prompt += f"""
 Important:
+- Do not vote against these known villagers: {', '.join(known_villagers)}.
 - Vote based on your suspicions from the discussions.
 """
 
