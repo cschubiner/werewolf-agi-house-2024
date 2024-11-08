@@ -1,12 +1,7 @@
 ########################################################################
-# This is runner file for running different agents against one another
+# This is a runner file for running different agents against one another
 #########################################################################
 
-########################################################################
-# IMPORTANT: This file is currently under maintenance, right now you 
-# need to update all AGENT_CONFIGS below to use this, which is quite
-# tricky. Check back to github for a streamlined version coming soon. 
-#########################################################################
 
 from sentient_campaign.activity_runner.runner import WerewolfCampaignActivityRunner, PlayerAgentConfig, SentientWerewolfRoles
 from transcript.reorg_files import reorg_files
@@ -81,6 +76,10 @@ def create_game_config(
     # Shuffle roles for all names
     random.shuffle(roles)
     player_roles = dict(zip(player_names, roles))
+
+    #print player names, classes, and roles mapping for each player
+    for player_name, role in player_roles.items():
+        print(f"Player: {player_name}, Class: {role_distribution[role.name.lower()]['agent_type']}, Role: {role.value}")
 
     # Create agent configs
     your_agents = []
