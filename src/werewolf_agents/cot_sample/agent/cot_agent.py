@@ -369,16 +369,16 @@ Important:
 - Keep the fact that you are an ally secret.
 """
 
-        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=5)
+        game_situation = self.get_last_x_messages_from_moderator_as_string(x=2)
 
         prompt = f"""{role_prompt}
 
-Current game situation:
-{game_situation}
+Current game situation: '''
+{game_situation}'''
 
 Based on the current game situation, participate in the discussion or cast your vote.
 
-If prompted to vote, respond with the **name** of the player you choose to eliminate, and optionally include your reasoning.
+If prompted to vote, respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning.
 
 Respond accordingly."""
 
@@ -391,6 +391,7 @@ Respond accordingly."""
         )
 
         action = response.choices[0].message.content.strip()
+        logger.info(f"Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
         return action
 
