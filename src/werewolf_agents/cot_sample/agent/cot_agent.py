@@ -448,7 +448,7 @@ My past investigations:
 Important:
 - Never accuse your fellow allies: {fellow_werewolves_str}.
 - Do not vote to eliminate them.
-- Defend them subtly if they are accused.
+- If they are accused, shift blame to someone else without explicitly defending your ally.
 - Focus on accusing other players.
 - Keep the fact that you are an ally secret.
 """
