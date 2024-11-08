@@ -443,9 +443,6 @@ If prompted to vote, respond with the **name** of the player you choose to elimi
 
 Respond accordingly."""
 
-        logger.warn("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
-        logger.warn(self.get_last_x_messages_from_interwoven_history_as_string(x=2, include_wolf_channel=True)[:999])
-
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
