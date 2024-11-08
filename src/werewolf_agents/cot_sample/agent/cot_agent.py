@@ -72,6 +72,7 @@ class CoTAgent(IReactiveAgent):
 
     def __init__(self):
         logger.debug("WerewolfAgent initialized.")
+        self.message_history = []  # Store messages as (header, content) tuples
 
 
     def __initialize__(self, name: str, description: str, config: dict = None):
@@ -151,6 +152,9 @@ Do not include any additional text. """
 
     async def async_notify(self, message: ActivityMessage):
         logger.info(f"ASYNC NOTIFY called with message: {message}")
+        # Store message in history
+        self.message_history.append((message.header, message.content.text))
+        
         if message.header.channel_type == MessageChannelType.DIRECT:
             user_messages = self.direct_messages.get(message.header.sender, [])
             user_messages.append(message.content.text)
@@ -251,6 +255,9 @@ Do not include any additional text. """
     async def async_respond(self, message: ActivityMessage):
         # This method is called when the agent needs to respond to a message that requires action (e.g., making a move or providing input).
         logger.info(f"ASYNC RESPOND called with message: {message}")
+        
+        # Store incoming message in history
+        self.message_history.append((message.header, message.content.text))
 
         if message.header.channel_type == MessageChannelType.DIRECT and message.header.sender == self.MODERATOR_NAME:
             # Store the moderator's message in direct messages
@@ -262,8 +269,19 @@ Do not include any additional text. """
             elif self.role == "doctor":
                 response_message = self._get_response_for_doctors_save(message)
             
+            # Create response header
+            response_header = ActivityMessageHeader(
+                message_id=f"response_to_{message.header.message_id}",
+                sender=self._name,
+                channel=message.header.channel,
+                channel_type=message.header.channel_type,
+                target_receivers=[message.header.sender]
+            )
+            # Store response in history
+            self.message_history.append((response_header, response_message))
+            
             response = ActivityResponse(response=response_message)
-            # Log the conversation in game history
+            # Log the conversation in game history 
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
             self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Direct Message]: {response_message}")
             # Log moderator interactions
@@ -346,31 +364,32 @@ Do not include any additional text. """
 
     def get_messages_since_voting_began_as_string(self) -> str:
         """
-        Retrieve all messages from the interwoven game history since the most recent voting phase began.
+        Retrieve all messages from message history since the most recent voting phase began.
         
         Returns:
             str: A string containing all messages since voting began.
         """
-        interwoven_history_array = self.get_interwoven_history_array(include_wolf_channel=False)
         messages_since_voting = []
         voting_start_found = False
 
-        # Iterate backward through the interwoven history
-        for message in reversed(interwoven_history_array):
-            # Check if the message is from the moderator and contains "vote"
-            if f"From - {self.MODERATOR_NAME}" in message and "vote" in message.lower():
+        # Iterate backward through message history
+        for header, content in reversed(self.message_history):
+            # Check if message is from moderator and contains "vote"
+            if header.sender == self.MODERATOR_NAME and "vote" in content.lower():
                 voting_start_found = True
-                # Include this message as the start of voting phase
-                messages_since_voting.insert(0, message)
+                messages_since_voting.insert(0, (header, content))
                 break
             else:
-                # Prepend messages to maintain chronological order
-                messages_since_voting.insert(0, message)
+                messages_since_voting.insert(0, (header, content))
         
         if voting_start_found:
-            return "\n".join(messages_since_voting)
+            # Format messages into strings
+            formatted_messages = []
+            for header, content in messages_since_voting:
+                formatted_message = f"[From - {header.sender}| To - {', '.join(header.target_receivers) if header.target_receivers else 'Everyone'}| {header.channel_type.name} Message in {header.channel}]: {content}"
+                formatted_messages.append(formatted_message)
+            return "\n".join(formatted_messages)
         else:
-            # If voting hasn't begun, return an empty string or a default message
             return "Voting phase has not begun yet."
 
     def _get_response_for_seer_guess(self, message):
