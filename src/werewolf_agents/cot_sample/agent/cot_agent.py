@@ -237,10 +237,6 @@ class CoTAgent(IReactiveAgent):
             self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Group Message in {message.header.channel}]: {response_message}")
             # Store werewolf den messages if applicable
             if message.header.channel == self.WOLFS_CHANNEL:
-                # Track fellow werewolves
-                if message.header.sender != self._name and message.header.sender not in self.fellow_werewolves:
-                    self.fellow_werewolves.append(message.header.sender)
-                    logger.info(f"Added {message.header.sender} to fellow werewolves.")
                 self.werewolf_den_messages.append(f"[From - {message.header.sender}| Group Message in {message.header.channel}]: {message.content.text}")
                 self.werewolf_den_messages.append(f"[From - {self._name} (me)| Group Message in {message.header.channel}]: {response_message}")
             # Log moderator interactions
@@ -319,15 +315,41 @@ Respond with the **name** of the player you choose to investigate, and no additi
         # action = self._name
         return f"I will protect myself ({self._name})."
 
-    def _extract_fellow_werewolves(self):
-        """Extract fellow werewolves from the werewolf den messages."""
-        for message in self.werewolf_den_messages:
-            match = re.match(r"\[From - (.*?)\|", message)
-            if match:
-                sender = match.group(1)
-                if sender != self._name and sender not in self.fellow_werewolves:
-                    self.fellow_werewolves.append(sender)
-                    logger.info(f"Extracted {sender} as fellow werewolf.")
+    def _identify_fellow_werewolves_via_llm(self):
+        """
+        Use the LLM to identify fellow werewolves (allies) from the last seven messages
+        in the werewolf den chat.
+        """
+        # Get the last 7 messages from the werewolf den
+        last_messages = self.werewolf_den_messages[-7:]
+        chat_history = "\n".join(last_messages)
+
+        # Prepare the prompt
+        prompt = f"""
+You are analyzing the following chat history between allies in a secret group:
+
+{chat_history}
+
+From this conversation, list the names of your allies. Do not mention any roles or the word 'werewolf'. Respond with a comma-separated list of names only.
+"""
+
+        try:
+            response = self.openai_client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a player in a social deduction game."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            # Extract the names from the response
+            allies_list = response.choices[0].message.content.strip()
+            # Split the response into individual names and clean up
+            allies = [name.strip() for name in allies_list.split(",")]
+            # Update the fellow_werewolves list, excluding self
+            self.fellow_werewolves = [name for name in allies if name != self._name]
+            logger.info(f"Identified fellow allies: {self.fellow_werewolves}")
+        except Exception as e:
+            logger.error(f"Error identifying fellow allies: {e}")
 
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
         if self.message_count < 3:  # Limit spam messages
@@ -341,16 +363,16 @@ Respond with the **name** of the player you choose to investigate, and no additi
         # Add special instructions for werewolves
         if self.role == "wolf":
             if not self.fellow_werewolves:
-                self._extract_fellow_werewolves()
+                self._identify_fellow_werewolves_via_llm()
             fellow_werewolves_str = ', '.join(self.fellow_werewolves)
             role_prompt += f"""
 
 Important:
-- Never accuse your fellow werewolves: {fellow_werewolves_str}.
+- Never accuse your fellow allies: {fellow_werewolves_str}.
 - Do not vote to eliminate them.
 - Defend them subtly if they are accused.
 - Focus on accusing other players.
-- Keep the fact that you are a werewolf secret.
+- Keep the fact that you are an ally secret.
 """
 
         game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=5)
