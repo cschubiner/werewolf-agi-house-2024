@@ -509,6 +509,18 @@ From this conversation, list the names of your allies. Do not mention any roles 
         # Prepare the role-specific prompt
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
 
+        # Adjust the prompt if role is 'villager' or 'doctor'
+        if self.role in ['villager', 'doctor']:
+            role_prompt += """
+Important:
+- Adopt the personality of a valley girl: use colloquial language, be chatty, and come across as laid-back.
+- Be more passive in discussions and avoid accusing anyone directly.
+- Focus on making friendly comments or observations without taking a strong stance.
+- Do not accuse anyone of being a werewolf.
+- Use phrases like 'like', 'totally', 'omg', and 'whatever'.
+- End some sentences with 'right?' or question marks.
+"""
+
         # Include all seer checks in the prompt
         if self.role == "seer":
             # Compile all seer checks
