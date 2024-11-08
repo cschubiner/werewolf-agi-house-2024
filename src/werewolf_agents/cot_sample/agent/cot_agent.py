@@ -90,6 +90,7 @@ class CoTAgent(IReactiveAgent):
         self.seer_checks = {}  # To store the seer's checks and results
         self.game_history = []  # To store the interwoven game history
         self.game_history_moderator = []  # To store moderator interactions
+        self.werewolf_den_messages = []  # To store werewolf den chat messages
         self.message_count = 0  # Add counter for spam control
 
         self.llm_config = self.sentient_llm_config["config_list"][0]
@@ -121,6 +122,8 @@ class CoTAgent(IReactiveAgent):
             group_messages.append((message.header.sender, message.content.text))
             self.group_channel_messages[message.header.channel] = group_messages
             self.game_history.append(f"[From - {message.header.sender}| To - Everyone| Group Message in {message.header.channel}]: {message.content.text}")
+            if message.header.channel == self.WOLFS_CHANNEL:
+                self.werewolf_den_messages.append(f"[From - {message.header.sender}| Group Message in {message.header.channel}]: {message.content.text}")
             if message.header.sender == self.MODERATOR_NAME:
                 self.game_history_moderator.append(f"[From - {message.header.sender}| To - Everyone| Group Message in {message.header.channel}]: {message.content.text}")
             # if this is the first message in the game channel, the moderator is sending the rules, store them
@@ -231,6 +234,10 @@ class CoTAgent(IReactiveAgent):
             # Log the conversation in game history
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Group Message in {message.header.channel}]: {message.content.text}")
             self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Group Message in {message.header.channel}]: {response_message}")
+            # Store werewolf den messages if applicable
+            if message.header.channel == self.WOLFS_CHANNEL:
+                self.werewolf_den_messages.append(f"[From - {message.header.sender}| Group Message in {message.header.channel}]: {message.content.text}")
+                self.werewolf_den_messages.append(f"[From - {self._name} (me)| Group Message in {message.header.channel}]: {response_message}")
             # Log moderator interactions
             if message.header.sender == self.MODERATOR_NAME:
                 self.game_history_moderator.append(f"[From - {message.header.sender}| To - {self._name} (me)| Group Message in {message.header.channel}]: {message.content.text}")
@@ -241,6 +248,19 @@ class CoTAgent(IReactiveAgent):
 
 
     
+    def get_last_x_messages_from_werewolf_den_chat_as_string(self, x: int) -> str:
+        """
+        Retrieve the last `x` messages from the werewolf den chat as a string.
+        
+        Args:
+            x (int): The number of messages to retrieve.
+            
+        Returns:
+            str: A string containing the last `x` messages from the werewolf den chat.
+        """
+        last_messages = self.werewolf_den_messages[-x:]
+        return "\n".join(last_messages)
+
     def get_last_x_messages_from_moderator_as_string(self, x: int) -> str:
         """
         Retrieve the last `x` messages exchanged with the moderator as a string.
