@@ -475,7 +475,7 @@ Respond accordingly."""
         )
 
         action = response.choices[0].message.content.strip()
-        logger.info(f"Discussion prompt: {prompt}")
+        logger.info(f"ZZZZZ-Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
         return action
 
@@ -492,6 +492,8 @@ Current game situation:
 {game_situation}
 
 Based on the current game situation, suggest a target for elimination.
+
+Note: Once again, if you're prompted to vote, respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning. You MUST do this.
 
 Respond with the **name** of the player you suggest to eliminate, and optionally include your reasoning."""
 
