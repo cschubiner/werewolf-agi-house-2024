@@ -166,3 +166,4 @@ src/werewolf_agents/cot_sample/transcripts
 src/werewolf_agents/simple_sample/transcripts
 src/werewolf_agents/cot_sample/game_results
 src/werewolf_agents/simple_sample/game_results
+.aider*
