@@ -89,6 +89,7 @@ class CoTAgent(IReactiveAgent):
         self.group_channel_messages = defaultdict(list)
         self.seer_checks = {}  # To store the seer's checks and results
         self.game_history = []  # To store the interwoven game history
+        self.game_history_moderator = []  # To store moderator interactions
         self.message_count = 0  # Add counter for spam control
 
         self.llm_config = self.sentient_llm_config["config_list"][0]
@@ -110,6 +111,8 @@ class CoTAgent(IReactiveAgent):
             user_messages.append(message.content.text)
             self.direct_messages[message.header.sender] = user_messages
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
+            if message.header.sender == self.MODERATOR_NAME:
+                self.game_history_moderator.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
             if not len(user_messages) > 1 and message.header.sender == self.MODERATOR_NAME:
                 self.role = self.find_my_role(message)
                 logger.info(f"Role found for user {self._name}: {self.role}")
@@ -118,6 +121,8 @@ class CoTAgent(IReactiveAgent):
             group_messages.append((message.header.sender, message.content.text))
             self.group_channel_messages[message.header.channel] = group_messages
             self.game_history.append(f"[From - {message.header.sender}| To - Everyone| Group Message in {message.header.channel}]: {message.content.text}")
+            if message.header.sender == self.MODERATOR_NAME:
+                self.game_history_moderator.append(f"[From - {message.header.sender}| To - Everyone| Group Message in {message.header.channel}]: {message.content.text}")
             # if this is the first message in the game channel, the moderator is sending the rules, store them
             if message.header.channel == self.GAME_CHANNEL and message.header.sender == self.MODERATOR_NAME and not self.game_intro:
                 self.game_intro = message.content.text
@@ -205,7 +210,11 @@ class CoTAgent(IReactiveAgent):
             response = ActivityResponse(response=response_message)
             # Log the conversation in game history
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
-            self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Direct Message]: {response_message}")    
+            self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Direct Message]: {response_message}")
+            # Log moderator interactions
+            if message.header.sender == self.MODERATOR_NAME:
+                self.game_history_moderator.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
+                self.game_history_moderator.append(f"[From - {self._name} (me)| To - {message.header.sender}| Direct Message]: {response_message}")
         elif message.header.channel_type == MessageChannelType.GROUP:
             # Store the group message with sender information
             self.group_channel_messages[message.header.channel].append(
@@ -222,14 +231,30 @@ class CoTAgent(IReactiveAgent):
             # Log the conversation in game history
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Group Message in {message.header.channel}]: {message.content.text}")
             self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Group Message in {message.header.channel}]: {response_message}")
+            # Log moderator interactions
+            if message.header.sender == self.MODERATOR_NAME:
+                self.game_history_moderator.append(f"[From - {message.header.sender}| To - {self._name} (me)| Group Message in {message.header.channel}]: {message.content.text}")
+                self.game_history_moderator.append(f"[From - {self._name} (me)| To - {message.header.sender}| Group Message in {message.header.channel}]: {response_message}")
         
         # Return the ActivityResponse containing the agent's reply
         return ActivityResponse(response=response_message)
 
 
     
-    def _summarize_game_history(self):
+    def get_last_x_messages_from_moderator_as_string(self, x: int) -> str:
+        """
+        Retrieve the last `x` messages exchanged with the moderator as a string.
+        
+        Args:
+            x (int): The number of messages to retrieve.
+            
+        Returns:
+            str: A string containing the last `x` messages with the moderator.
+        """
+        last_messages = self.game_history_moderator[-x:]
+        return "\n".join(last_messages)
 
+    def _summarize_game_history(self):
         self.detailed_history = "\n".join(self.game_history)
 
         # send the llm the previous summary of each of the other players and suspiciona nd information, the detailed chats of this day or night
