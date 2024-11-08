@@ -113,8 +113,7 @@ class CoTAgent(IReactiveAgent):
         Args:
             message_text (str): The message content from the moderator.
         """
-        prompt = f"""
-You are a Seer in a game of Werewolf. You received the following message from the moderator:
+        prompt = f"""You are a Seer in a game of Werewolf. You received the following message from the moderator:
 
 '{message_text}'
 
@@ -124,8 +123,7 @@ Respond with the player's name and role in the following JSON format:
 
 {{"player_name": "<player's name>", "role": "<player's role>"}}
 
-Do not include any additional text.
-"""
+Do not include any additional text. """
 
         try:
             response = self.openai_client.chat.completions.create(
@@ -134,7 +132,7 @@ Do not include any additional text.
                     {"role": "system", "content": "You are an assistant that extracts information from game messages."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.2  # Optional: Set temperature to reduce randomness
+                temperature=0.0
             )
             json_response = response.choices[0].message.content.strip()
             logger.debug(f"LLM extraction: {json_response}")
@@ -235,6 +233,7 @@ Do not include any additional text.
                     "content": f"You have got message from moderator here about my role in the werewolf game, here is the message -> '{message.content.text}', what is your role? possible roles are 'wolf','villager','doctor' and 'seer'. answer in a few words.",
                 },
             ],
+            temperature=0.0,
         )
         my_role_guess = response.choices[0].message.content
         logger.info(f"my_role_guess: {my_role_guess}")
@@ -346,7 +345,7 @@ Do not include any additional text.
 Current game situation:
 {game_situation}
 
-Based on the current game situation, choose a player to investigate.
+Based on the current game situation, choose a player to investigate. Choose someone you haven't checked before if possible.
 
 Respond with the **name** of the player you choose to investigate, and no additional text."""
 
@@ -355,7 +354,8 @@ Respond with the **name** of the player you choose to investigate, and no additi
             messages=[
                 {"role": "system", "content": "You are the Seer in a Werewolf game."},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=0.0
         )
 
         action = response.choices[0].message.content.strip()
@@ -391,7 +391,8 @@ From this conversation, list the names of your allies. Do not mention any roles 
                 messages=[
                     {"role": "system", "content": "You are a player in a social deduction game."},
                     {"role": "user", "content": prompt}
-                ]
+                ],
+                temperature=0.0
             )
             # Extract the names from the response
             allies_list = response.choices[0].message.content.strip()
@@ -448,7 +449,8 @@ Respond accordingly."""
             messages=[
                 {"role": "system", "content": f"You are a Villager in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=0.0
         )
 
         action = response.choices[0].message.content.strip()
@@ -460,7 +462,8 @@ Respond accordingly."""
         if self.role != "wolf":
             return "I am not a werewolf and cannot participate in this channel."
 
-        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=2, include_wolf_channel=True)
+        # game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=2, include_wolf_channel=True)
+        game_situation = self.get_last_x_messages_from_werewolf_den_chat_as_string(x=2)
 
         prompt = f"""{self.WOLF_PROMPT}
 
@@ -476,7 +479,8 @@ Respond with the **name** of the player you suggest to eliminate, and optionally
             messages=[
                 {"role": "system", "content": "You are a werewolf in a Werewolf game."},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=0.0
         )
 
         action = response.choices[0].message.content.strip()
