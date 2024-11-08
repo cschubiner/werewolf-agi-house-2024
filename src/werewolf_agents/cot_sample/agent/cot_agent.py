@@ -74,6 +74,43 @@ class CoTAgent(IReactiveAgent):
         logger.debug("WerewolfAgent initialized.")
         self.message_history = []  # Store messages as (header, content) tuples
 
+    def _get_alive_players_via_llm(self) -> str:
+        """
+        Use the LLM to extract the names of alive players from the last six messages
+        of the interwoven chat history.
+
+        Returns:
+            str: A comma-separated list of alive player names as provided by the LLM.
+        """
+        # Get the last six messages from the interwoven chat history
+        last_six_messages = self.get_last_x_messages_from_interwoven_history_as_string(6)
+
+        # Prepare the prompt
+        prompt = f"""
+You are analyzing a Werewolf game. Based on the following chat history, list all the names of players who are currently alive in the game.
+
+Respond with a comma-separated list of names, and no additional text.
+
+Chat History:
+{last_six_messages}
+"""
+
+        # Call the LLM to get the alive players
+        try:
+            response = self.openai_client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are an assistant that extracts information from game messages."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0
+            )
+            alive_players = response.choices[0].message.content.strip()
+            return alive_players
+        except Exception as e:
+            logger.error(f"Error fetching alive players via LLM: {e}")
+            return ""
+
 
     def __initialize__(self, name: str, description: str, config: dict = None):
         super().__initialize__(name, description, config)
@@ -507,11 +544,16 @@ Important:
         # Get the recent game situation
         game_situation = self.get_last_x_messages_from_moderator_as_string(x=2)
 
+        # Get the list of alive players
+        alive_players = self._get_alive_players_via_llm()
+
         # Construct the prompt for discussion
         prompt = f"""{role_prompt}
 
 Current game situation: '''
 {game_situation}'''
+
+List of alive players: {alive_players}
 
 Based on the current game situation, participate in the discussion.
 
@@ -566,11 +608,16 @@ Important:
         # Get the messages since voting began
         game_situation = self.get_messages_since_voting_began_as_string()
 
+        # Get the list of alive players
+        alive_players = self._get_alive_players_via_llm()
+
         # Construct the prompt for voting
         prompt = f"""{role_prompt}
 
 Current game situation: '''
 {game_situation}'''
+
+List of alive players: {alive_players}
 
 Based on the current game situation, decide on a player to vote for elimination.
 
