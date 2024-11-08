@@ -161,29 +161,41 @@ class CoTAgent(IReactiveAgent):
         return role
 
     async def async_respond(self, message: ActivityMessage):
+        # This method is called when the agent needs to respond to a message that requires action (e.g., making a move or providing input).
         logger.info(f"ASYNC RESPOND called with message: {message}")
 
         if message.header.channel_type == MessageChannelType.DIRECT and message.header.sender == self.MODERATOR_NAME:
+            # Store the moderator's message in direct messages
             self.direct_messages[message.header.sender].append(message.content.text)
+            # If the agent is the Seer, generate a response to investigate a player
             if self.role == "seer":
                 response_message = self._get_response_for_seer_guess(message)
+            # If the agent is the Doctor, generate a response to protect a player
             elif self.role == "doctor":
                 response_message = self._get_response_for_doctors_save(message)
             
             response = ActivityResponse(response=response_message)
+            # Log the conversation in game history
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Direct Message]: {message.content.text}")
             self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Direct Message]: {response_message}")    
         elif message.header.channel_type == MessageChannelType.GROUP:
+            # Store the group message with sender information
             self.group_channel_messages[message.header.channel].append(
                 (message.header.sender, message.content.text)
             )
+            # If the message is in the main game channel
             if message.header.channel == self.GAME_CHANNEL:
+                # Generate a discussion message or vote response for the common room
                 response_message = self._get_discussion_message_or_vote_response_for_common_room(message)
+            # If the message is in the wolf's den channel
             elif message.header.channel == self.WOLFS_CHANNEL:
+                # Generate a response for the werewolves to decide on a target
                 response_message = self._get_response_for_wolf_channel_to_kill_villagers(message)
+            # Log the conversation in game history
             self.game_history.append(f"[From - {message.header.sender}| To - {self._name} (me)| Group Message in {message.header.channel}]: {message.content.text}")
             self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Group Message in {message.header.channel}]: {response_message}")
         
+        # Return the ActivityResponse containing the agent's reply
         return ActivityResponse(response=response_message)
 
     def _get_inner_monologue(self, role_prompt, game_situation, specific_prompt):
