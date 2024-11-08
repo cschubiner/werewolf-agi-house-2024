@@ -72,8 +72,7 @@ class CoTAgent(IReactiveAgent):
 
     def __init__(self):
         logger.debug("WerewolfAgent initialized.")
-        self.message_count = 0  # Add counter for spam control
-        
+
 
     def __initialize__(self, name: str, description: str, config: dict = None):
         super().__initialize__(name, description, config)
@@ -90,6 +89,7 @@ class CoTAgent(IReactiveAgent):
         self.group_channel_messages = defaultdict(list)
         self.seer_checks = {}  # To store the seer's checks and results
         self.game_history = []  # To store the interwoven game history
+        self.message_count = 0  # Add counter for spam control
 
         self.llm_config = self.sentient_llm_config["config_list"][0]
         self.openai_client = OpenAI(
