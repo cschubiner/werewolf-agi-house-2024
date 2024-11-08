@@ -427,7 +427,6 @@ Important:
 - You have strong evidence that {accused_player} is a werewolf based on your observations.
 - Accuse {accused_player} vigorously of being a werewolf.
 - Mention that their behavior has been very suspicious.
-- Do not reveal that you are the Seer.
 """
             else:
                 # Include past investigations if no Werewolves identified
