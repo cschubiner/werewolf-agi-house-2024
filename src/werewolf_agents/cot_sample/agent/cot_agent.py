@@ -446,7 +446,7 @@ Respond accordingly."""
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a Villager in a Werewolf game."},
+                {"role": "system", "content": f"You are a Villager in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
                 {"role": "user", "content": prompt}
             ]
         )
