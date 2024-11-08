@@ -92,6 +92,7 @@ class CoTAgent(IReactiveAgent):
         self.game_history_moderator = []  # To store moderator interactions
         self.werewolf_den_messages = []  # To store werewolf den chat messages
         self.message_count = 0  # Add counter for spam control
+        self.fellow_werewolves = []  # Track fellow werewolves
 
         self.llm_config = self.sentient_llm_config["config_list"][0]
         self.openai_client = OpenAI(
@@ -236,6 +237,10 @@ class CoTAgent(IReactiveAgent):
             self.game_history.append(f"[From - {self._name} (me)| To - {message.header.sender}| Group Message in {message.header.channel}]: {response_message}")
             # Store werewolf den messages if applicable
             if message.header.channel == self.WOLFS_CHANNEL:
+                # Track fellow werewolves
+                if message.header.sender != self._name and message.header.sender not in self.fellow_werewolves:
+                    self.fellow_werewolves.append(message.header.sender)
+                    logger.info(f"Added {message.header.sender} to fellow werewolves.")
                 self.werewolf_den_messages.append(f"[From - {message.header.sender}| Group Message in {message.header.channel}]: {message.content.text}")
                 self.werewolf_den_messages.append(f"[From - {self._name} (me)| Group Message in {message.header.channel}]: {response_message}")
             # Log moderator interactions
@@ -314,6 +319,16 @@ Respond with the **name** of the player you choose to investigate, and no additi
         # action = self._name
         return f"I will protect myself ({self._name})."
 
+    def _extract_fellow_werewolves(self):
+        """Extract fellow werewolves from the werewolf den messages."""
+        for message in self.werewolf_den_messages:
+            match = re.match(r"\[From - (.*?)\|", message)
+            if match:
+                sender = match.group(1)
+                if sender != self._name and sender not in self.fellow_werewolves:
+                    self.fellow_werewolves.append(sender)
+                    logger.info(f"Extracted {sender} as fellow werewolf.")
+
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
         if self.message_count < 3:  # Limit spam messages
             self.message_count += 1
@@ -322,7 +337,23 @@ Respond with the **name** of the player you choose to investigate, and no additi
             message_to_append = ""
 
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
-        game_situation = self.get_last_x_messages_from_moderator_as_string(x=1)
+
+        # Add special instructions for werewolves
+        if self.role == "wolf":
+            if not self.fellow_werewolves:
+                self._extract_fellow_werewolves()
+            fellow_werewolves_str = ', '.join(self.fellow_werewolves)
+            role_prompt += f"""
+
+Important:
+- Never accuse your fellow werewolves: {fellow_werewolves_str}.
+- Do not vote to eliminate them.
+- Defend them subtly if they are accused.
+- Focus on accusing other players.
+- Keep the fact that you are a werewolf secret.
+"""
+
+        game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=5)
 
         prompt = f"""{role_prompt}
 
