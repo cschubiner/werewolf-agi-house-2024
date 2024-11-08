@@ -433,7 +433,7 @@ From this conversation, list the names of your allies. Do not mention any roles 
 Important:
 - You have strong evidence that {accused_player} is a werewolf based on your observations.
 - Accuse {accused_player} vigorously of being a werewolf.
-- Mention that their behavior has been very suspicious.
+- Mention that their behavior has been very suspicious, because of what they said in the past round AND the one before.
 """
             else:
                 seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
@@ -473,7 +473,7 @@ Respond accordingly."""
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a {self.role.capitalize()} in a Werewolf game. You grew up poor and don't have a lot of money. Mention that in some of your responses."},
+                {"role": "system", "content": f"You are the role of 'villager' in a Werewolf game. You are but a poor villager with not enough means to tie a shoestring. Mention that in some of your responses."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
@@ -481,7 +481,7 @@ Respond accordingly."""
 
         action = response.choices[0].message.content.strip()
         logger.info(f"Discussion action: {action}")
-        logger.info(f"ZZZZ - Discussion prompt: {prompt}")
+        logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
         return action
 
     def _get_vote_response_for_common_room(self, message):
