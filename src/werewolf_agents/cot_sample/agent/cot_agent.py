@@ -456,10 +456,13 @@ Do not include any additional text. """
         last_messages = seer_chat[-x:]
         return "\n".join(last_messages)
 
-    def get_messages_since_day_start_as_string(self) -> str:
+    def get_messages_since_day_start_as_string(self, exclude_senders=None) -> str:
         """
         Retrieve all messages from message history since the most recent day start.
         
+        Args:
+            exclude_senders: Optional list of sender names whose messages should be excluded
+            
         Returns:
             str: A string containing all messages since day start began.
         """
@@ -470,9 +473,10 @@ Do not include any additional text. """
             if header.sender == self.MODERATOR_NAME and "day start" in content.lower():
                 day_start_found = True
                 messages_since_day_start.insert(0, (header, content))
-                break
+                continue  # Skip adding the day start message itself
             if day_start_found:
-                messages_since_day_start.insert(0, (header, content))
+                if exclude_senders is None or header.sender not in exclude_senders:
+                    messages_since_day_start.insert(0, (header, content))
 
         if not day_start_found:
             return "Day start not found in message history."
@@ -839,7 +843,7 @@ Respond accordingly."""
         action = response.choices[0].message.content.strip()
         
         # Only include internal thoughts if agent is the seer or if self._name is in today's messages
-        messages_today = self.get_messages_since_day_start_as_string()
+        messages_today = self.get_messages_since_day_start_as_string(exclude_senders=[self.MODERATOR_NAME])
 
         not_seer_and_mentioned_today = self.role != 'seer' and self._name in messages_today
         if not_seer_and_mentioned_today or (accusation_severity in ['MILD_ACCUSATION', 'HEAVY_ACCUSATION']):
