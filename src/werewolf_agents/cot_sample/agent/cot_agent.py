@@ -814,8 +814,12 @@ Respond accordingly."""
         if self.role != "doctor":
             action = f"""<internal_thoughts_on_other_roles>{role_guesses}</internal_thoughts_on_other_roles>
             
+[From {self._name} (Villager) | play-arena]: {action}"""
+        else:
+            action = f"""[From {self._name} (Doctor) | play-arena]: 
+
 {action}"""
-        
+
         logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
         return action
