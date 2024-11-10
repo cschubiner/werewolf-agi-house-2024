@@ -469,23 +469,23 @@ Do not include any additional text. """
         messages_since_day_start = []
         day_start_found = False
 
-        # Find the index where "day start" is announced
-        for i, (header, content) in enumerate(self.message_history):
+        for header, content in reversed(self.message_history):
             if header.sender == self.MODERATOR_NAME and "day start" in content.lower():
                 day_start_found = True
-                day_start_index = i + 1  # Start collecting messages after this index
-                break
+                messages_since_day_start.insert(0, (header, content))
+                continue  # Skip adding the day start message itself
+            if day_start_found:
+                if exclude_senders is None or header.sender not in exclude_senders:
+                    messages_since_day_start.insert(0, (header, content))
 
         if not day_start_found:
             return "Day start not found in message history."
 
-        # Collect messages after "day start"
-        for header, content in self.message_history[day_start_index:]:
-            if exclude_senders is None or header.sender not in exclude_senders:
-                formatted_message = f"[From - {header.sender}| To - {', '.join(header.target_receivers) if header.target_receivers else 'Everyone'}| {header.channel_type.name} Message in {header.channel}]: {content}"
-                messages_since_day_start.append(formatted_message)
-
-        return "\n".join(messages_since_day_start)
+        formatted_messages = []
+        for header, content in messages_since_day_start:
+            formatted_message = f"[From - {header.sender}| To - {', '.join(header.target_receivers) if header.target_receivers else 'Everyone'}| {header.channel_type.name} Message in {header.channel}]: {content}"
+            formatted_messages.append(formatted_message)
+        return "\n".join(formatted_messages)
 
     def get_messages_since_voting_began_as_string(self) -> str:
         """
@@ -843,11 +843,9 @@ Respond accordingly."""
         action = response.choices[0].message.content.strip()
         
         # Only include internal thoughts if agent is the seer or if self._name is in today's messages
-        # Get messages from today, excluding moderator messages
         messages_today = self.get_messages_since_day_start_as_string(exclude_senders=[self.MODERATOR_NAME])
 
-        # Check if agent is mentioned by other players (not moderator) today and is not the seer
-        not_seer_and_mentioned_today = self.role != 'seer' and self._name.lower() in messages_today.lower()
+        not_seer_and_mentioned_today = self.role != 'seer' and self._name in messages_today
         if not_seer_and_mentioned_today or (accusation_severity in ['MILD_ACCUSATION', 'HEAVY_ACCUSATION']):
             action = f"""<internal_thoughts_on_other_roles>\n{role_guesses}\n</internal_thoughts_on_other_roles>
             
