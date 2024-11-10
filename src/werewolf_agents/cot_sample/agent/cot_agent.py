@@ -84,9 +84,17 @@ class CoTAgent(IReactiveAgent):
         Generates guesses of roles for all alive players, including self, using the LLM.
         Returns a neatly formatted string of the guesses.
         """
+        # Prepare the seer checks information if role is 'seer'
+        seer_checks_info = ""
+        if self.role == 'seer':
+            seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+
+        # Set the role to 'Villager' in the prompt to avoid being found out
+        role_in_prompt = 'Villager'
+
         # Prepare the prompt for the LLM
         prompt = f"""
-You are '{self._name}' in a game of Werewolf. Your role is 'Villager'
+You are '{self._name}' in a game of Werewolf. Your role is '{role_in_prompt}'
 
 Your task is to analyze the game situation and guess the roles of all alive players, including yourself.
 
@@ -101,6 +109,9 @@ Game Situation:
 
 List of Alive Players:
 {alive_players}
+
+Seer Checks Information:
+{seer_checks_info}
 
 Respond with your guesses in the following neatly formatted manner:
 
