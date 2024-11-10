@@ -537,27 +537,44 @@ From this conversation, list the names of your allies. Do not mention any roles 
         # Get messages from today only
         today_messages = self.get_messages_since_day_start_as_string()
 
+        # if my name is not in any of today_messages, return NOT_MENTIONED
+        if self._name.lower() not in today_messages.lower():
+            return "NOT_MENTIONED"
+
         # Prepare the prompt for the LLM
         prompt = f"""
 You are analyzing a conversation between players in a Werewolf game.
-Your task is to determine if any player has accused or is voting against '{self._name}' in the following messages:
+Your task is to determine if any player has accused or is voting against you ('{self._name}') in the following messages:
 
+<messages>
 {today_messages}
+</messages>
+
 
 Classify the severity of accusations towards '{self._name}' into one of the following categories:
-- NONE: No accusations or mentions towards you.
-- NOT_MENTIONED: Your name is not mentioned at all.
-- MILD_ACCUSATION: Slight or indirect accusations or suspicions towards you.
-- HEAVY_ACCUSATION: Direct and strong accusations or explicit votes against you.
+- NONE: No accusations or mentions towards the player.
+- NOT_MENTIONED: The player's name is not mentioned at all.
+- MILD_ACCUSATION: Slight or indirect accusations or suspicions towards the player.
+- HEAVY_ACCUSATION: Direct and strong accusations or explicit votes against the player.
 
-Respond with only the severity level (NONE, NOT_MENTIONED, MILD_ACCUSATION, HEAVY_ACCUSATION), and no additional text.
+To analyze the messages:
+1. Look for any mentions of the player's name in the conversation.
+2. If the name is not mentioned at all, classify as NOT_MENTIONED.
+3. If the name is mentioned, carefully read the context to determine if there are any accusations or suspicions.
+4. Evaluate the strength and directness of any accusations or suspicions found.
+5. Choose the most appropriate classification based on your analysis.
+
+Provide your response in the following format:
+<classification>INSERT CLASSIFICATION HERE</classification>
+
+Your response should contain only the classification tag with one of the four categories (NONE, NOT_MENTIONED, MILD_ACCUSATION, or HEAVY_ACCUSATION) inside. Do not include any additional text or explanation.
 """
 
         try:
             response = self.openai_client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that analyzes game conversations."},
+                    {"role": "system", "content": f"You are {self._name}, a player in a game of werewolf."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.0
@@ -580,8 +597,8 @@ Respond with only the severity level (NONE, NOT_MENTIONED, MILD_ACCUSATION, HEAV
         last_moderator_message = self.game_history_moderator[-1] if self.game_history_moderator else ""
         if "vote" in last_moderator_message.lower():
             return self._get_vote_response_for_common_room(message)
-        else:
-            return self._get_discussion_message_for_common_room(message, accusation_severity)
+
+        return self._get_discussion_message_for_common_room(message, accusation_severity)
 
     def _get_discussion_message_for_common_room(self, message, accusation_severity):
         # Prepare the role-specific prompt with accusation handling
