@@ -80,9 +80,17 @@ class CoTAgent(IReactiveAgent):
         Generates guesses of roles for all alive players, including self, using the LLM.
         Returns a neatly formatted string of the guesses.
         """
+        # Prepare the seer checks information if role is 'seer'
+        seer_checks_info = ""
+        if self.role == 'seer':
+            seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+
+        # Set the role to 'Villager' in the prompt to avoid being found out
+        role_in_prompt = 'Villager'
+
         # Prepare the prompt for the LLM
         prompt = f"""
-You are '{self._name}' in a game of Werewolf. Your role is 'Villager'
+You are '{self._name}' in a game of Werewolf. Your role is '{role_in_prompt}'
 
 Your task is to analyze the game situation and guess the roles of all alive players, including yourself.
 
@@ -97,6 +105,9 @@ Game Situation:
 
 List of Alive Players:
 {alive_players}
+
+Seer Checks Information:
+{seer_checks_info}
 
 Respond with your guesses in the following neatly formatted manner:
 
@@ -114,7 +125,7 @@ Do not include any additional text.
                 {"role": "system", "content": f"You are '{self._name}', a player in a game of Werewolf."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7  # Allow some creativity in role guessing
+            temperature=0.1
         )
         role_guesses = response.choices[0].message.content.strip()
         logger.info(f"Role guesses:\n{role_guesses}")
@@ -783,16 +794,13 @@ Based on the current game situation and your role analysis, participate in the d
 
 Respond accordingly."""
 
-        # Call the LLM to generate a discussion message
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
                 {
                     "role": "system",
                     "content": (
-                        f"You are '{self._name}' in a Werewolf game. "
-                        "You are a wealthy villager with an upstanding background in the law. "
-                        "Mention that in some of your responses."
+                        f"You are '{self._name}' in a Werewolf game. Role: 'villager'. Keep your responses succinct"
                     )
                 },
                 {"role": "user", "content": prompt}
@@ -801,6 +809,9 @@ Respond accordingly."""
         )
 
         action = response.choices[0].message.content.strip()
+        action = f"""<internal_thoughts_on_other_roles>{role_guesses}</internal_thoughts_on_other_roles>
+        
+{action}"""
         logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
         return action
