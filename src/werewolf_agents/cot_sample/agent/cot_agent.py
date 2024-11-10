@@ -670,6 +670,16 @@ Your response should contain only the classification tag with one of the four ca
         # Prepare the role-specific prompt with accusation handling
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
         
+        # Unless being heavily accused, instruct the agent to avoid strong accusations
+        if accusation_severity not in ["HEAVY_ACCUSATION"]:
+            role_prompt += """
+Important:
+- Avoid accusing other players strongly, if at all.
+- Participate in discussions without directing strong accusations.
+- Focus on sharing observations, thoughts, and asking questions.
+- Do not make direct accusations against others.
+"""
+        
         # Add defense instructions based on accusation severity
         if accusation_severity == "HEAVY_ACCUSATION":
             # If heavily accused and someone suggests we're the seer, claim to be seer as last resort
@@ -765,8 +775,10 @@ Important:
 Important:
 - Never accuse your fellow allies: {fellow_werewolves_str}.
 - Do not vote to eliminate them.
-- If they are accused, shift blame to someone else without explicitly defending your ally.
-- Focus on accusing other players.
+- If they are accused, subtly deflect attention without explicitly defending your ally.
+- Avoid accusing other players strongly, if at all.
+- Participate in discussions without directing strong accusations.
+- Focus on keeping suspicion away from yourself and your allies.
 - Keep the fact that you are an ally secret.
 """
 
