@@ -79,6 +79,51 @@ class CoTAgent(IReactiveAgent):
         logger.debug("WerewolfAgent initialized.")
         self.message_history = []  # Store messages as (header, content) tuples
 
+    def _generate_role_guesses(self, game_situation: str, alive_players: str) -> str:
+        """
+        Generates guesses of roles for all alive players, including self, using the LLM.
+        Returns a neatly formatted string of the guesses.
+        """
+        # Prepare the prompt for the LLM
+        prompt = f"""
+You are '{self._name}' in a game of Werewolf.
+
+Your task is to analyze the game situation and guess the roles of all alive players, including yourself.
+
+Instructions:
+- For yourself, you know your role with 100% certainty; state it with 100% confidence.
+- For other players, provide your best guess of their roles and assign a percentage likelihood to each role.
+- Ensure to include at least one werewolf and at least one seer in your guesses.
+- Only include players who are currently alive.
+
+Game Situation:
+{game_situation}
+
+List of Alive Players:
+{alive_players}
+
+Respond with your guesses in the following neatly formatted manner:
+
+Player Name: Role Guess (Confidence%)
+e.g.,
+Alice: Villager (50%)
+Bob: Werewolf (70%)
+
+Do not include any additional text.
+"""
+        # Call the LLM to generate the role guesses
+        response = self.openai_client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": f"You are '{self._name}', a player in a game of Werewolf."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7  # Allow some creativity in role guessing
+        )
+        role_guesses = response.choices[0].message.content.strip()
+        logger.info(f"Role guesses:\n{role_guesses}")
+        return role_guesses
+
     def _get_alive_players_via_llm(self) -> str:
         """
         Use the LLM to extract the names of alive players from the last six messages
@@ -700,6 +745,9 @@ Important:
         # Get the list of alive players
         alive_players = self._get_alive_players_via_llm()
 
+        # Generate role guesses
+        role_guesses = self._generate_role_guesses(game_situation, alive_players)
+
         # Construct the prompt for discussion
         prompt = f"""{role_prompt}
 
@@ -708,7 +756,10 @@ Current game situation: '''
 
 List of alive players: {alive_players}
 
-Based on the current game situation, participate in the discussion.
+Your Thoughts on Players' Roles:
+{role_guesses}
+
+Based on the current game situation and your role analysis, participate in the discussion.
 
 Respond accordingly."""
 
