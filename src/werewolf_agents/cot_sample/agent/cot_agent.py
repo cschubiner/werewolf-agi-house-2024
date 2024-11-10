@@ -809,9 +809,13 @@ Respond accordingly."""
         )
 
         action = response.choices[0].message.content.strip()
-        action = f"""<internal_thoughts_on_other_roles>{role_guesses}</internal_thoughts_on_other_roles>
         
+        # Only include internal thoughts if not doctor
+        if self.role != "doctor":
+            action = f"""<internal_thoughts_on_other_roles>{role_guesses}</internal_thoughts_on_other_roles>
+            
 {action}"""
+        
         logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
         return action
