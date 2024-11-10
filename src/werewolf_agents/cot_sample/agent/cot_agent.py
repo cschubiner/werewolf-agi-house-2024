@@ -740,6 +740,15 @@ Important:
 - Mention that it's slightly suspicious they haven't spoken yet, but avoid making direct accusations.
 - Express your observation casually, without being confrontational."""
 
+        # Add prompting about the doctor likely protecting us tonight
+        role_prompt += """
+Important:
+- Subtly mention that you believe the doctor might be protecting you tonight.
+- Do not reveal your role or explicitly state that you are a target.
+- Express this in a way that might discourage werewolves from targeting you.
+- Keep the tone casual and avoid drawing too much attention to yourself.
+"""
+
         # Include all seer checks in the prompt
         if self.role == "seer":
             # Compile all seer checks
