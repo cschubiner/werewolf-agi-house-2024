@@ -589,15 +589,16 @@ From this conversation, list the names of your allies. Do not mention any roles 
         Analyzes messages from today only.
         Returns the severity level: 'NONE', 'NOT_MENTIONED', 'MILD_ACCUSATION', 'HEAVY_ACCUSATION'.
         """
-        # Get messages from today only
-        today_messages = self.get_messages_since_day_start_as_string()
+        try:
+            # Get messages from today only
+            today_messages = self.get_messages_since_day_start_as_string()
 
-        # if my name is not in any of today_messages, return NOT_MENTIONED
-        if self._name.lower() not in today_messages.lower():
-            return "NOT_MENTIONED"
+            # if my name is not in any of today_messages, return NOT_MENTIONED
+            if self._name.lower() not in today_messages.lower():
+                return "NOT_MENTIONED"
 
-        # Prepare the prompt for the LLM
-        prompt = f"""
+            # Prepare the prompt for the LLM
+            prompt = f"""
 You are analyzing a conversation between players in a Werewolf game.
 Your task is to determine if any player has accused or is voting against you ('{self._name}') in the following messages:
 
@@ -625,7 +626,6 @@ Provide your response in the following format:
 Your response should contain only the classification tag with one of the four categories (NONE, NOT_MENTIONED, MILD_ACCUSATION, or HEAVY_ACCUSATION) inside. Do not include any additional text or explanation.
 """
 
-        try:
             response = self.openai_client.chat.completions.create(
                 model=self.model,
                 messages=[
