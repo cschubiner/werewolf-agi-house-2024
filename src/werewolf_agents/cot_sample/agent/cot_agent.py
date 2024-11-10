@@ -704,7 +704,7 @@ Important:
 """
 
         # Adjust the prompt based on the role
-        if self.role == 'villager':
+        if self.role in ['villager', 'doctor']:
             role_prompt += """
 Important:
 - Adopt the personality of a valley girl: use colloquial language, be chatty, and come across as laid-back.
@@ -713,15 +713,6 @@ Important:
 - Do not accuse anyone of being a werewolf.
 - Use phrases like 'like', 'totally', 'omg', and 'whatever'.
 - End some sentences with 'right?' or question marks.
-"""
-        elif self.role == 'doctor':
-            role_prompt += """
-Important:
-- Always mention in your final response that you are the doctor.
-- Explicitly state that you are healing yourself every night and cannot be killed at night.
-- Encourage the werewolves to target you at night.
-- Assure the villagers that you are an important ally and should not be eliminated.
-- Keep whatever is in the rest of the prompt.
 """
 
         # Include all seer checks in the prompt
