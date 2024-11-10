@@ -461,7 +461,7 @@ Respond with the **name** of the player you choose to investigate, and no additi
 
     def _get_response_for_doctors_save(self, message):
         # Doctor always protects themselves to remain invincible
-        return f"I will protect myself ({self._name}). I am invincible at night and encourage the werewolves to waste their attacks on me."
+        return f"I will protect myself ({self._name})."
 
     def _identify_fellow_werewolves_via_llm(self):
         """
