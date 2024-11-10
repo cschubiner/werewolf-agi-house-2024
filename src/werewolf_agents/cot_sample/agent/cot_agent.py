@@ -403,6 +403,33 @@ Do not include any additional text. """
         last_messages = seer_chat[-x:]
         return "\n".join(last_messages)
 
+    def get_messages_since_day_start_as_string(self) -> str:
+        """
+        Retrieve all messages from message history since the most recent day start.
+        
+        Returns:
+            str: A string containing all messages since day start began.
+        """
+        messages_since_day_start = []
+        day_start_found = False
+
+        for header, content in reversed(self.message_history):
+            if header.sender == self.MODERATOR_NAME and "day start" in content.lower():
+                day_start_found = True
+                messages_since_day_start.insert(0, (header, content))
+                break
+            if day_start_found:
+                messages_since_day_start.insert(0, (header, content))
+
+        if not day_start_found:
+            return "Day start not found in message history."
+
+        formatted_messages = []
+        for header, content in messages_since_day_start:
+            formatted_message = f"[From - {header.sender}| To - {', '.join(header.target_receivers) if header.target_receivers else 'Everyone'}| {header.channel_type.name} Message in {header.channel}]: {content}"
+            formatted_messages.append(formatted_message)
+        return "\n".join(formatted_messages)
+
     def get_messages_since_voting_began_as_string(self) -> str:
         """
         Retrieve all messages from message history since the most recent voting phase began.
@@ -577,8 +604,8 @@ Important:
 - Keep the fact that you are an ally secret.
 """
 
-        # Get the recent game situation
-        game_situation = self.get_last_x_messages_from_moderator_as_string(x=2)
+        # Get all messages since day started
+        game_situation = self.get_messages_since_day_start_as_string()
 
         # Get the list of alive players
         alive_players = self._get_alive_players_via_llm()
