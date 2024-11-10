@@ -86,7 +86,7 @@ class CoTAgent(IReactiveAgent):
         """
         # Prepare the prompt for the LLM
         prompt = f"""
-You are '{self._name}' in a game of Werewolf.
+You are '{self._name}' in a game of Werewolf. Your role is 'Villager'
 
 Your task is to analyze the game situation and guess the roles of all alive players, including yourself.
 
