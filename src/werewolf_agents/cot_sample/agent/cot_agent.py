@@ -80,13 +80,27 @@ Important:
         Generates guesses of roles for all alive players, including self, using the LLM.
         Returns a neatly formatted string of the guesses.
         """
-        # Prepare the seer checks information if role is 'seer'
-        seer_checks_info = ""
-        if self.role == 'seer':
-            seer_checks_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+        # Initialize known_roles_info
+        known_roles_info = ""
 
-        # Set the role to 'Villager' in the prompt to avoid being found out
-        role_in_prompt = 'Villager'
+        # Populate known_roles_info based on role
+        if self.role == 'seer':
+            # Include seer checks (players and their roles)
+            known_roles_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+        elif self.role == 'wolf':
+            # Ensure fellow_werewolves is populated
+            if not self.fellow_werewolves:
+                self._identify_fellow_werewolves_via_llm()
+            # Include fellow werewolves, marking them as 'Villager'
+            known_roles_info = "\n".join([f"{player}: Villager" for player in self.fellow_werewolves])
+
+        # Set appropriate role in prompt
+        if self.role == 'seer':
+            role_in_prompt = 'Seer'
+        elif self.role == 'wolf':
+            role_in_prompt = 'Villager'  # Keep werewolf role hidden
+        else:
+            role_in_prompt = 'Villager'
 
         # Prepare the prompt for the LLM
         prompt = f"""
@@ -106,8 +120,8 @@ Game Situation:
 List of Alive Players:
 {alive_players}
 
-Seer Checks Information:
-{seer_checks_info}
+Known Roles Information:
+{known_roles_info}
 
 Respond with your guesses in the following neatly formatted manner:
 
