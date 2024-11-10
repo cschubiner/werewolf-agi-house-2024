@@ -84,23 +84,20 @@ Important:
         known_roles_info = ""
 
         # Populate known_roles_info based on role
-        if self.role == 'seer':
-            # Include seer checks (players and their roles)
-            known_roles_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
-        elif self.role == 'wolf':
-            # Ensure fellow_werewolves is populated
-            if not self.fellow_werewolves:
-                self._identify_fellow_werewolves_via_llm()
-            # Include fellow werewolves, marking them as 'Villager'
-            known_roles_info = "\n".join([f"{player}: Villager" for player in self.fellow_werewolves])
+        try:
+            if self.role == 'seer':
+                # Include seer checks (players and their roles)
+                known_roles_info = "\n".join([f"{player}: {role}" for player, role in self.seer_checks.items()])
+            elif self.role == 'wolf':
+                # Ensure fellow_werewolves is populated
+                if not self.fellow_werewolves:
+                    self._identify_fellow_werewolves_via_llm()
+                # Include fellow werewolves, marking them as 'Villager'
+                known_roles_info = "\n".join([f"{player}: Villager" for player in self.fellow_werewolves])
+        except Exception as e:
+            logger.error(f"Error populating known_roles_info: {e}")
 
-        # Set appropriate role in prompt
-        if self.role == 'seer':
-            role_in_prompt = 'Seer'
-        elif self.role == 'wolf':
-            role_in_prompt = 'Villager'  # Keep werewolf role hidden
-        else:
-            role_in_prompt = 'Villager'
+        role_in_prompt = 'Villager'
 
         # Prepare the prompt for the LLM
         prompt = f"""
