@@ -838,11 +838,14 @@ Respond accordingly."""
 
         action = response.choices[0].message.content.strip()
         
-        # Only include internal thoughts if not doctor
-        if True:
+        # Only include internal thoughts if agent is the seer or if self._name is in today's messages
+        messages_today = self.get_messages_since_day_start_as_string()
+        if self.role == 'seer' or self._name in messages_today:
             action = f"""<internal_thoughts_on_other_roles>\n{role_guesses}\n</internal_thoughts_on_other_roles>
             
 [From {self._name} (Villager) | play-arena]: {action}"""
+        else:
+            action = f"[From {self._name} (Villager) | play-arena]: {action}"
 
         logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
