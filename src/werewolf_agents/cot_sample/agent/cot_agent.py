@@ -46,23 +46,23 @@ class CoTAgent(IReactiveAgent):
     # input -> thoughts -> init action -> reflection -> final action
 
     WOLF_PROMPT = """You are a wolf in a game of Werewolf. Your goal is to eliminate villagers without being detected. Consider the following:
-    1. Vote to kill whoever you believe is the seer. If you do not have a good guess, vote for whoever you believe is most likely to be a villager. Vote for the suspected doctor last. NEVER vote for your fellow werewolf.
-    2. Note that other players can try to trick you. Just because someone says they are the seer, doesn't mean that they actually are."""
+1. Vote to kill whoever you believe is the seer. If you do not have a good guess, vote for whoever you believe is most likely to be a villager. Vote for the suspected doctor last. NEVER vote for your fellow werewolf.
+2. Note that other players can try to trick you. Just because someone says they are the seer, doesn't mean that they actually are."""
 
     VILLAGER_PROMPT = """You are a villager in a game of Werewolf. Your goal is to identify and eliminate the werewolves. Consider the following:
-    1. Observe quietly and take mental notes of behavior patterns.
-    2. Listen more than you speak.
-    3. Share observations without making direct accusations.
-    4. Support others' reasonable suspicions rather than leading accusations.
-    
-    Important:
-    - During the voting phase, respond with only the name of the player you choose to eliminate, and no additional text."""
+1. Observe quietly and take mental notes of behavior patterns.
+2. Listen more than you speak.
+3. Share observations without making direct accusations.
+4. Support others' reasonable suspicions rather than leading accusations.
+
+Important:
+- During the voting phase, respond with only the name of the player you choose to eliminate, and no additional text."""
 
     SEER_PROMPT = """You are the seer in a game of Werewolf. Your ability is to learn one player's true identity each night. Consider the following:
-    1. Keep your role secret as long as possible.
-    2. Guide discussions indirectly using your knowledge.
-    3. Present suspicions as hunches rather than certainties.
-    4. Only reveal your role as an absolute last resort."""
+1. Keep your role secret as long as possible.
+2. Guide discussions indirectly using your knowledge.
+3. Present suspicions as hunches rather than certainties.
+4. Only reveal your role as an absolute last resort."""
 
     DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to help the village by drawing the werewolves' attacks onto yourself. Consider the following:
     1. Always protect yourself every night.
