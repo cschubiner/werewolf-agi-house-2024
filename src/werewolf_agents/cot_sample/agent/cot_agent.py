@@ -656,6 +656,22 @@ Your response should contain only the classification tag with one of the four ca
 
         return severity
 
+    def _get_players_who_have_spoken_since_day_start(self):
+        """
+        Returns a list of player names who have sent messages since day start.
+        """
+        day_start_found = False
+        players_who_spoke = set()
+        for header, content in self.message_history:
+            if header.sender == self.MODERATOR_NAME and "day start" in content.lower():
+                day_start_found = True
+                continue  # Start collecting messages after day start
+            if day_start_found:
+                # Consider messages from other players (excluding self and moderator)
+                if header.sender != self.MODERATOR_NAME and header.sender != self._name:
+                    players_who_spoke.add(header.sender)
+        return list(players_who_spoke)
+
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
         # Detect accusations against us
         accusation_severity = self._detect_accusations_against_me()
@@ -703,17 +719,23 @@ Important:
 - Maintain composure and avoid appearing defensive
 """
 
-        # Adjust the prompt based on the role
-        if self.role in ['villager', 'doctor']:
-            role_prompt += """
+        # Get the list of players who have spoken since day start
+        players_who_spoke_today = self._get_players_who_have_spoken_since_day_start()
+
+        # Convert alive_players string to a list
+        alive_players_list = [player.strip() for player in alive_players.split(',') if player.strip()]
+
+        # Identify players who haven't spoken yet today
+        silent_players = [player for player in alive_players_list if player not in players_who_spoke_today and player != self._name]
+
+        # If there are silent players, adjust the role_prompt
+        if silent_players:
+            silent_players_str = ', '.join(silent_players)
+            role_prompt += f"""
 Important:
-- Adopt the personality of a valley girl: use colloquial language, be chatty, and come across as laid-back.
-- Be more passive in discussions and avoid accusing anyone directly.
-- Focus on making friendly comments or observations without taking a strong stance.
-- Do not accuse anyone of being a werewolf.
-- Use phrases like 'like', 'totally', 'omg', and 'whatever'.
-- End some sentences with 'right?' or question marks.
-"""
+- You have noticed that {silent_players_str} haven't talked yet today.
+- Mention that it's slightly suspicious they haven't spoken yet, but avoid making direct accusations.
+- Express your observation casually, without being confrontational."""
 
         # Include all seer checks in the prompt
         if self.role == "seer":
