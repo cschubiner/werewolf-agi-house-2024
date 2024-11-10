@@ -56,7 +56,10 @@ class CoTAgent(IReactiveAgent):
     1. Observe player behavior and voting patterns.
     2. Share your suspicions and listen to others.
     3. Be cautious of false accusations.
-    4. Try to identify the seer and doctor to protect them."""
+    4. Try to identify the seer and doctor to protect them.
+    
+    Important:
+    - During the voting phase, respond with only the name of the player you choose to eliminate, and no additional text."""
 
     SEER_PROMPT = """You are the seer in a game of Werewolf. Your ability is to learn one player's true identity each night. Consider the following:
     1. Use your knowledge wisely without revealing your role.
@@ -666,13 +669,20 @@ List of alive players: {alive_players}
 
 Based on the current game situation, decide on a player to vote for elimination.
 
-Respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning."""
+**Important: Respond with the name of the player you choose to eliminate, and no additional text.**"""
 
         # Call the LLM to generate a vote response
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a 'villager' role in a Werewolf game."},
+                {
+                    "role": "system", 
+                    "content": (
+                        f"You are a '{self.role}' role in a Werewolf game. "
+                        "When voting, you must respond with only the name of the player you choose to eliminate, "
+                        "and no additional text."
+                    )
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
