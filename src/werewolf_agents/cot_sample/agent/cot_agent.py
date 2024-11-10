@@ -682,28 +682,16 @@ Important:
         
         # Add defense instructions based on accusation severity
         if accusation_severity == "HEAVY_ACCUSATION":
-            # If heavily accused and someone suggests we're the seer, claim to be seer as last resort
-            last_messages = self.get_messages_since_day_start_as_string()
-            if "seer" in last_messages.lower() and self._name.lower() in last_messages.lower():
-                # Get list of alive players to accuse one
-                alive_players = self._get_alive_players_via_llm()
-                role_prompt += f"""
-Important:
-- You are being heavily accused but someone thinks you're the seer
-- CLAIM TO BE THE SEER - this is your last resort defense
-- Pick one player from the alive players and claim you investigated them last night and found they are definitely a werewolf
-- Be very confident and authoritative in your claim
-- State that you were trying to keep your role secret but now must reveal it to save yourself
-- Emphasize that you have proof of your target's guilt through your seer powers
-"""
-            else:
-                role_prompt += f"""
+            role_prompt += f"""
 Important:
 - You are being heavily accused by others
-- Defend yourself calmly and rationally 
+- Defend yourself calmly and rationally
+- If appropriate, you may reveal that you are the seer to defend yourself
 - Point out inconsistencies in their accusations
-- Suggest other suspects without being too aggressive
 - Maintain composure and avoid appearing defensive
+- Avoid accusing other players strongly, if at all
+- Try to manipulate others into trusting you by acting friendly and supportive
+- Emphasize your value to the group and how you want to help everyone
 """
         elif accusation_severity == "MILD_ACCUSATION":
             role_prompt += f"""
