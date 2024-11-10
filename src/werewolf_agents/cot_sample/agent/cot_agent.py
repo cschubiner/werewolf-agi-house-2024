@@ -719,6 +719,9 @@ Important:
 - Maintain composure and avoid appearing defensive
 """
 
+        # Get the list of alive players
+        alive_players = self._get_alive_players_via_llm()
+        
         # Get the list of players who have spoken since day start
         players_who_spoke_today = self._get_players_who_have_spoken_since_day_start()
 
