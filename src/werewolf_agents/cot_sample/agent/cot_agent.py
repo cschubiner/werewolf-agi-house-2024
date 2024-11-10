@@ -118,7 +118,7 @@ Do not include any additional text.
                 {"role": "system", "content": f"You are '{self._name}', a player in a game of Werewolf."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7  # Allow some creativity in role guessing
+            temperature=0.1
         )
         role_guesses = response.choices[0].message.content.strip()
         logger.info(f"Role guesses:\n{role_guesses}")
@@ -763,16 +763,13 @@ Based on the current game situation and your role analysis, participate in the d
 
 Respond accordingly."""
 
-        # Call the LLM to generate a discussion message
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
                 {
                     "role": "system",
                     "content": (
-                        f"You are '{self._name}' in a Werewolf game. "
-                        "You are a wealthy villager with an upstanding background in the law. "
-                        "Mention that in some of your responses."
+                        f"You are '{self._name}' in a Werewolf game. Role: 'villager'. Keep your responses succinct"
                     )
                 },
                 {"role": "user", "content": prompt}
@@ -781,6 +778,9 @@ Respond accordingly."""
         )
 
         action = response.choices[0].message.content.strip()
+        action = f"""<internal_thoughts_on_other_roles>{role_guesses}</internal_thoughts_on_other_roles>
+        
+{action}"""
         logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
         return action
