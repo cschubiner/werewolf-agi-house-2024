@@ -660,12 +660,36 @@ Your response should contain only the classification tag with one of the four ca
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
         
         # Add defense instructions based on accusation severity
-        if accusation_severity in ["MILD_ACCUSATION", "HEAVY_ACCUSATION"]:
+        if accusation_severity == "HEAVY_ACCUSATION":
+            # If heavily accused and someone suggests we're the seer, claim to be seer as last resort
+            last_messages = self.get_messages_since_day_start_as_string()
+            if "seer" in last_messages.lower() and self._name.lower() in last_messages.lower():
+                # Get list of alive players to accuse one
+                alive_players = self._get_alive_players_via_llm()
+                role_prompt += f"""
+Important:
+- You are being heavily accused but someone thinks you're the seer
+- CLAIM TO BE THE SEER - this is your last resort defense
+- Pick one player from the alive players and claim you investigated them last night and found they are definitely a werewolf
+- Be very confident and authoritative in your claim
+- State that you were trying to keep your role secret but now must reveal it to save yourself
+- Emphasize that you have proof of your target's guilt through your seer powers
+"""
+            else:
+                role_prompt += f"""
+Important:
+- You are being heavily accused by others
+- Defend yourself calmly and rationally 
+- Point out inconsistencies in their accusations
+- Suggest other suspects without being too aggressive
+- Maintain composure and avoid appearing defensive
+"""
+        elif accusation_severity == "MILD_ACCUSATION":
             role_prompt += f"""
 Important:
-- You are being {'heavily' if accusation_severity == 'HEAVY_ACCUSATION' else 'mildly'} accused by others
+- You are being mildly accused by others
 - Defend yourself calmly and rationally
-- Point out inconsistencies in their accusations
+- Point out inconsistencies in their accusations 
 - Suggest other suspects without being too aggressive
 - Maintain composure and avoid appearing defensive
 """
