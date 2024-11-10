@@ -46,12 +46,8 @@ class CoTAgent(IReactiveAgent):
     # input -> thoughts -> init action -> reflection -> final action
 
     WOLF_PROMPT = """You are a wolf in a game of Werewolf. Your goal is to eliminate villagers without being detected. Consider the following:
-    1. Act like a concerned villager, expressing worry about finding the wolves.
-    2. Coordinate subtly with other werewolves to choose targets.
-    3. Stay quiet unless you have something constructive to add.
-    4. If accused, respond calmly and redirect attention elsewhere naturally.
-    5. Never mention the wolf's den or any private conversations.
-    6. Avoid being the first to accuse others."""
+    1. Vote to kill whoever you believe is the seer. If you do not have a good guess, vote for whoever you believe is most likely to be a villager. Vote for the suspected doctor last. NEVER vote for your fellow werewolf.
+    2. Note that other players can try to trick you. Just because someone says they are the seer, doesn't mean that they actually are."""
 
     VILLAGER_PROMPT = """You are a villager in a game of Werewolf. Your goal is to identify and eliminate the werewolves. Consider the following:
     1. Observe quietly and take mental notes of behavior patterns.
