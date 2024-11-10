@@ -895,11 +895,8 @@ Based on the current game situation, decide on a player to vote for elimination.
         return action
 
     def _get_response_for_wolf_channel_to_kill_villagers(self, message):
-        if self.role != "wolf":
-            return "I am not a werewolf and cannot participate in this channel."
-
         # game_situation = self.get_last_x_messages_from_interwoven_history_as_string(x=2, include_wolf_channel=True)
-        game_situation = self.get_last_x_messages_from_werewolf_den_chat_as_string(x=2)
+        game_situation = self.get_last_x_messages_from_werewolf_den_chat_as_string(x=3)
 
         prompt = f"""{self.WOLF_PROMPT}
 
