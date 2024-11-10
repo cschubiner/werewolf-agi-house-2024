@@ -840,7 +840,9 @@ Respond accordingly."""
         
         # Only include internal thoughts if agent is the seer or if self._name is in today's messages
         messages_today = self.get_messages_since_day_start_as_string()
-        if self.role == 'seer' or self._name in messages_today:
+
+        not_seer_and_mentioned_today = self.role != 'seer' and self._name in messages_today
+        if not_seer_and_mentioned_today or (accusation_severity in ['MILD_ACCUSATION', 'HEAVY_ACCUSATION']):
             action = f"""<internal_thoughts_on_other_roles>\n{role_guesses}\n</internal_thoughts_on_other_roles>
             
 [From {self._name} (Villager) | play-arena]: {action}"""
