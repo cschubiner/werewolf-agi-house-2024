@@ -57,7 +57,10 @@ class CoTAgent(IReactiveAgent):
     1. Observe quietly and take mental notes of behavior patterns.
     2. Listen more than you speak.
     3. Share observations without making direct accusations.
-    4. Support others' reasonable suspicions rather than leading accusations."""
+    4. Support others' reasonable suspicions rather than leading accusations.
+    
+    Important:
+    - During the voting phase, respond with only the name of the player you choose to eliminate, and no additional text."""
 
     SEER_PROMPT = """You are the seer in a game of Werewolf. Your ability is to learn one player's true identity each night. Consider the following:
     1. Keep your role secret as long as possible.
@@ -65,12 +68,12 @@ class CoTAgent(IReactiveAgent):
     3. Present suspicions as hunches rather than certainties.
     4. Only reveal your role as an absolute last resort."""
 
-    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to help the village by staying alive. Consider the following:
-    1. Protect yourself each night to stay in the game.
-    2. Keep your role hidden unless absolutely necessary.
-    3. Participate in discussions like a regular villager.
-    4. Only reveal your role if you're about to be eliminated.
-    5. Avoid drawing attention to yourself."""
+    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to help the village by drawing the werewolves' attacks onto yourself. Consider the following:
+    1. Always protect yourself every night.
+    2. Always reveal your role during discussions.
+    3. Emphasize that you are healing yourself every night and cannot be killed at night.
+    4. Encourage the werewolves to target you at night.
+    5. Assure the villagers that you are an important ally and should not be eliminated."""
 
     def __init__(self):
         logger.debug("WerewolfAgent initialized.")
@@ -458,9 +461,8 @@ Respond with the **name** of the player you choose to investigate, and no additi
         return action
 
     def _get_response_for_doctors_save(self, message):
-        # Doctor always protects themselves
-        # action = self._name
-        return f"I will protect myself ({self._name})."
+        # Doctor always protects themselves to remain invincible
+        return f"I will protect myself ({self._name}). I am invincible at night and encourage the werewolves to waste their attacks on me."
 
     def _identify_fellow_werewolves_via_llm(self):
         """
@@ -526,8 +528,9 @@ Important:
             role_prompt += """
 Important:
 - Always mention in your final response that you are the doctor.
-- Explicitly state that you're an important ally to the team.
-- Encourage others not to eliminate you because of your role.
+- Explicitly state that you are healing yourself every night and cannot be killed at night.
+- Encourage the werewolves to target you at night.
+- Assure the villagers that you are an important ally and should not be eliminated.
 - Keep whatever is in the rest of the prompt.
 """
 
@@ -667,13 +670,20 @@ List of alive players: {alive_players}
 
 Based on the current game situation, decide on a player to vote for elimination.
 
-Respond with the **name** of the player you choose to eliminate, and optionally include very brief reasoning."""
+**Important: Respond with the name of the player you choose to eliminate, and no additional text.**"""
 
         # Call the LLM to generate a vote response
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are a 'villager' role in a Werewolf game."},
+                {
+                    "role": "system", 
+                    "content": (
+                        f"You are a '{self.role}' role in a Werewolf game. "
+                        "When voting, you must respond with only the name of the player you choose to eliminate, "
+                        "and no additional text."
+                    )
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0

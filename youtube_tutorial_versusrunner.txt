@@ -1,0 +1,143 @@
+Transcript for http://youtube.com/v/m50um68r-A8
+Captions:
+https://youtube.com/api/timedtext?v=m50um68r-A8&ei=0AcwZ9HoBoeYsfIPobfv8Qo&caps=asr&opi=112496729&exp=xbt&xoaf=5&hl=en&ip=0.0.0.0&ipbits=0&expire=1731226176&sparams=ip,ipbits,expire,v,ei,caps,opi,exp,xoaf&signature=86B95363934A1EDD2EBFFCC36188E9AAAFA54C90.A68F8D15348D29BB5A6A246BE8C20B27BFC71891&key=yt8&kind=asr&lang=en&fmt=json3
+
+
+everyone uh welcome to this more advanced tutorial on how to build agents
+and how to specifically um use the versus Runner file um to test werewolf
+agents um against other agents on your local machine we'll also have a chance
+to um look at how do you look into the transcripts of different agents and just
+cover some basic tips and tricks for uh using this code base while building
+werewolf agents so to get started I'll just quickly spin up uh a new directory
+for this um [Music]
+[Music] okay so the the goal of this is um to
+try to use this versus runner. piy file and to use this for maybe a new agent
+that you've made that's separate from the template agents um so but in order
+so as we can see here this versus runner. piy file Associates a name with
+a role such as wolf with um an agent type um and you can see down here we
+specify the configurations for those different agent types including where
+it's getting that wheel file from so in order to run this we're going to start
+out by um going through each of these different um
+temp so you can see here it's using the different template agents there's the
+coot autogen and simple um to get started I'm just going to build each of
+these because I haven't built them uh in this fresh directory so I'm going to go
+to um [Music]
+and now if we look here you will see that I built each one of these fresh um
+now the problem here is uh well normally when you're doing this you really should
+run each of these agents and just the regular Runner to make sure they're
+working and especially if during the the tournament you're submitting to a live
+game make sure that you run this Runner first cuz um that could just lead to a
+bunch of issues for us um as we're trying to run your game and project it
+on screen uh so just keep that in mind but these are kind of the default
+template agents as they are so I don't really need to change them one thing I
+do need to change though is these um whe file paths um well except here actually
+these wheel file paths um have been uh these are relative paths so this should
+work um just to test this all out now I can
+go back into a root directory and try running and then's see what happens okay
+and I did not follow all the steps of the read
+me I also did not include this um unv just going to pause this recording
+here now that I added myv file back in here and now that I installed python.
+EnV this is not this for this is just EnV for Mac or this is silicon um and
+now I'm going to um try again okay and looks like um it's
+getting started let's see what happens so now let's check what's
+happening in the game we log into
+hydrogen and here we are we can clearly see um kind of different agents playing
+the game um here I I just run versus Runner as it is um nothing nothing fancy
+now let's say you what if you want to run versus Runner with an agent of your
+own design um easy way to see how we can do that is let's just take
+our simple sample template make a copy of it I'll rename this
+to I'm going to call this cool agent and cool agent is going to be a
+really um simple adaptation of this super simple agent um I'm going to
+say always try to be as cool as possible even if
+it's a little obnoxious and I'm also going to just
+just so that we can really see this agent in action and see if this is
+working um I'm just going to go in here and I'm going to just say
+plus cool so it's just going to end everything it says or even better we can
+start it out with there um so now we do have this
+game going just going to interrupt this well see how far we
+are and one uh important tip uh do not hit control C to stop a game more than
+once if you do you may have to go into Docker
+um and clear out your um images and containers because otherwise you will um
+when you interrupted even when I interrupted just there it's possible
+that I need to do this um but hopefully this will still work we're going to go
+um back to our versus Runner file and I'm just going to add a new config
+so um we're going to call this cool make sure you add a comma here and
+so for cool we're going to go into a cool
+agent grab the path stick the path
+here and because cool is just a duplicate of super simple the module
+path and this is the path to the agent file within the wheel file and so
+remember when you're creating a wheel file here if you look at this cool agent
+directory there's this P project. Tomo file that dictates how this um wheel
+file is created and it starts with um it's saying you should go into this
+agent directory um and um you're we're building a p r.
+Tomo file sorry we're building a wheel file for this agent um directory um and
+so now if we go back to our versus Runner what we need here is
+the within agent the place that we said you should build this wheel file where
+is the agent file so here it's just a Super simple. PI because we made a copy
+in Collision we didn't rename this this actually stays the same then for the
+config path um this config is a bit of an outdated thing your agents have no
+access to Internet and um can only access the llms uh
+through kind of a way I described in a previous tutorial um and given that we
+just need to provide any like blank config here so this is providing you
+know the blank config in simple sample already we can leave that as it is and
+the agent class name we also didn't change so we can leave that as this so
+this should be all good to go we're just going to take one of these and we're
+going to rename this cool guy and I would recommend not just to be
+safe don't add spaces or um even don't don't add spaces and try
+not to add uppercase letters to names U just can be useful um and now we're
+going to call it this cool um and
+now let's try running this again
+okay and here we are we got the game running and um clearly the cool guy
+agent is operating according to the modifications that we made here um yeah
+okay now let's take it one step further even what if you want
+to use versus Runner to run games that maybe other people run games with agents
+that maybe other people in your group have made or Run games with agents that
+um maybe people in even other groups have made um to test this out let's see
+if I go here um I have
+here I have a couple agents sent by a couple friends of mine um if I want to
+use versus Runner to test out these agents all I have to do is go here make
+a couple more of these and then fill them out
+appropriately so Anton agent sent by Anton I can go left click on
+this copy this path I'm going to call this just my
+friend's name and I know um so you'll have to
+check this but I know the module path hasn't been changed here I know we can
+still use my blank config and I know that this hasn't been changed either now
+this one we're going to call O and we're going to grab olg's
+agent now with oleg's agent we actually know that the module path was changed
+this is XR a agent and we know that the class name
+was also actually changed to now I
+can try running this all again I'm going to check to make sure that I and as
+these are wheel files everything should already be built um make sure that we're
+rebuilding images here and oh almost forgot to add these in here so let's say
+we're going to give um Frodo let's rename Frodo as Anon we're going to give
+him the role of and let's replace Bilbo here with a
+leg okay so now we have Anton o these are some of the temped agents in there
+and let's see what happens okay and while this game gets up
+and running um let's take a look at the transcripts we see from these games as
+they're created um if we look at the transcripts
+so we can see here the last game that played um we can see the last so um if
+you run this versus Runner file it'll print the game State at the end or log
+the game St at the end and we can see that the last standing player in this
+game was Mary do and Loa we can also see that the winners of this game were um
+the villagers so meru and loo were villagers
+and then it's pretty easy we can go into the um transcript for one of these
+players so we can just go to mer do. log um or sorry Maria do all you have to do
+is just click any way use this editor and here you now have the um transcript
+for the entire game now this transcript has the logs if we want just the
+transcript we can go here let's open it and here we go this is the transcript
+from the entire game um because Maria do is a doctor we
+basically are just seeing the s Maria do is a villager um and we can see that in
+the first one um basically all of these messages will just be in the play Arena
+so you can think of this as like a full play arena chat of course if I went in
+and uh came in from the perspective of one of the werewolves so I look for cool
+guy I'm go to the transcript for cool guy let open this up
+and now we'll also see what's happening in the wolf group um because
+because we know that cool gu is a wolf so that's pretty
+cool and now we can see um all these different agents including cool guy
+Anton and Oleg interacting
+um seems like Anton made an agent that talks like a pirate um
+cool guys just try to be cool and let's see what Oleg
+did interesting and there we go um we have
+uh three agents built by three different
+people running on my computer
+
