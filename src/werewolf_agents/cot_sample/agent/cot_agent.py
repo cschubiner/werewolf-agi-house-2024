@@ -754,9 +754,8 @@ My past investigations:
                 role_prompt += f"""
 Important:
 - You have strong evidence that {accused_player} is a werewolf based on your investigations.
-- Consider whether to reveal this information.
-- If you choose to share your findings, do so cautiously and without strong accusations.
-- Avoid making direct accusations.
+- Accuse {accused_player} vigorously of being a werewolf.
+- Mention that their behavior has been very suspicious.
 - Defend the players you know to be villagers: {', '.join(known_villagers)}.
 """
             else:
