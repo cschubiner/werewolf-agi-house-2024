@@ -579,10 +579,21 @@ Your response should contain only the classification tag with one of the four ca
                 ],
                 temperature=0.0
             )
-            severity = response.choices[0].message.content.strip().upper()
-            # Ensure the severity is one of the expected values
-            if severity not in ["NONE", "NOT_MENTIONED", "MILD_ACCUSATION", "HEAVY_ACCUSATION"]:
+            response_text = response.choices[0].message.content.strip()
+            logger.debug(f"LLM response: {response_text}")
+
+            # Use regex to extract the classification between the tags
+            match = re.search(r'<classification>(.*?)</classification>', response_text, re.IGNORECASE)
+            if match:
+                severity = match.group(1).strip().upper()
+                # Check if the extracted severity is one of the expected values
+                if severity not in ["NONE", "NOT_MENTIONED", "MILD_ACCUSATION", "HEAVY_ACCUSATION"]:
+                    logger.warning(f"Unexpected classification value: '{severity}'. Defaulting to 'NONE'.")
+                    severity = "NONE"
+            else:
+                logger.warning("Failed to parse classification from LLM response. Defaulting to 'NONE'.")
                 severity = "NONE"
+
             logger.info(f"Detected accusation severity: {severity}")
         except Exception as e:
             logger.error(f"Error detecting accusations: {e}")
