@@ -812,7 +812,7 @@ Respond accordingly."""
         
         # Only include internal thoughts if not doctor
         if self.role != "doctor":
-            action = f"""<internal_thoughts_on_other_roles>{role_guesses}</internal_thoughts_on_other_roles>
+            action = f"""<internal_thoughts_on_other_roles>\n{role_guesses}\n</internal_thoughts_on_other_roles>
             
 [From {self._name} (Villager) | play-arena]: {action}"""
         else:
