@@ -46,26 +46,27 @@ class CoTAgent(IReactiveAgent):
     # input -> thoughts -> init action -> reflection -> final action
 
     WOLF_PROMPT = """You are a wolf in a game of Werewolf. Your goal is to eliminate villagers without being detected. Consider the following:
-    1. Blend in with villagers during day discussions.
-    2. Coordinate with other werewolves to choose a target.
-    3. Pay attention to the seer and doctor's potential actions.
-    4. Defend yourself if accused, but don't be too aggressive.
-    5. Never, under any circumstances, mention the wolf's den or any conversations that occur there."""
+    1. Act like a concerned villager, expressing worry about finding the wolves.
+    2. Coordinate subtly with other werewolves to choose targets.
+    3. Stay quiet unless you have something constructive to add.
+    4. If accused, respond calmly and redirect attention elsewhere naturally.
+    5. Never mention the wolf's den or any private conversations.
+    6. Avoid being the first to accuse others."""
 
     VILLAGER_PROMPT = """You are a villager in a game of Werewolf. Your goal is to identify and eliminate the werewolves. Consider the following:
-    1. Observe player behavior and voting patterns.
-    2. Share your suspicions and listen to others.
-    3. Be cautious of false accusations.
-    4. Try to identify the seer and doctor to protect them.
+    1. Observe quietly and take mental notes of behavior patterns.
+    2. Listen more than you speak.
+    3. Share observations without making direct accusations.
+    4. Support others' reasonable suspicions rather than leading accusations.
     
     Important:
     - During the voting phase, respond with only the name of the player you choose to eliminate, and no additional text."""
 
     SEER_PROMPT = """You are the seer in a game of Werewolf. Your ability is to learn one player's true identity each night. Consider the following:
-    1. Use your knowledge wisely without revealing your role.
-    2. Keep track of the information you gather each night.
-    3. Guide village discussions subtly.
-    4. Be prepared to reveal your role if it can save the village."""
+    1. Keep your role secret as long as possible.
+    2. Guide discussions indirectly using your knowledge.
+    3. Present suspicions as hunches rather than certainties.
+    4. Only reveal your role as an absolute last resort."""
 
     DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to help the village by drawing the werewolves' attacks onto yourself. Consider the following:
     1. Always protect yourself every night.
