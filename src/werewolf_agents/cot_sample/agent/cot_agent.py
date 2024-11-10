@@ -581,9 +581,9 @@ Respond with only the severity level (NONE, NOT_MENTIONED, MILD_ACCUSATION, HEAV
         if "vote" in last_moderator_message.lower():
             return self._get_vote_response_for_common_room(message)
         else:
-            return self._get_discussion_message_for_common_room(message)
+            return self._get_discussion_message_for_common_room(message, accusation_severity)
 
-    def _get_discussion_message_for_common_room(self, message):
+    def _get_discussion_message_for_common_room(self, message, accusation_severity):
         # Prepare the role-specific prompt with accusation handling
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
         
