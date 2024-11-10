@@ -802,14 +802,10 @@ Respond accordingly."""
         action = response.choices[0].message.content.strip()
         
         # Only include internal thoughts if not doctor
-        if self.role != "doctor":
+        if True:
             action = f"""<internal_thoughts_on_other_roles>\n{role_guesses}\n</internal_thoughts_on_other_roles>
             
 [From {self._name} (Villager) | play-arena]: {action}"""
-        else:
-            action = f"""[From {self._name} (Doctor) | play-arena]: 
-
-{action}"""
 
         logger.info(f"ZZZZ WWWW - Discussion prompt: {prompt}")
         logger.info(f"Discussion action: {action}")
