@@ -75,6 +75,51 @@ class CoTAgent(IReactiveAgent):
         logger.debug("WerewolfAgent initialized.")
         self.message_history = []  # Store messages as (header, content) tuples
 
+    def _generate_role_guesses(self, game_situation: str, alive_players: str) -> str:
+        """
+        Generates guesses of roles for all alive players, including self, using the LLM.
+        Returns a neatly formatted string of the guesses.
+        """
+        # Prepare the prompt for the LLM
+        prompt = f"""
+You are '{self._name}' in a game of Werewolf. Your role is 'Villager'
+
+Your task is to analyze the game situation and guess the roles of all alive players, including yourself.
+
+Instructions:
+- For yourself, you know your role with 100% certainty; state it with 100% confidence.
+- For other players, provide your best guess of their roles and assign a percentage likelihood to each role.
+- Ensure to include at least one werewolf and at least one seer in your guesses.
+- Only include players who are currently alive.
+
+Game Situation:
+{game_situation}
+
+List of Alive Players:
+{alive_players}
+
+Respond with your guesses in the following neatly formatted manner:
+
+Player Name: Role Guess (Confidence%)
+e.g.,
+Alice: Villager (50%)
+Bob: Werewolf (70%)
+
+Do not include any additional text.
+"""
+        # Call the LLM to generate the role guesses
+        response = self.openai_client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": f"You are '{self._name}', a player in a game of Werewolf."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7  # Allow some creativity in role guessing
+        )
+        role_guesses = response.choices[0].message.content.strip()
+        logger.info(f"Role guesses:\n{role_guesses}")
+        return role_guesses
+
     def _get_alive_players_via_llm(self) -> str:
         """
         Use the LLM to extract the names of alive players from the last six messages
@@ -267,7 +312,7 @@ Do not include any additional text. """
             messages=[
                 {
                     "role": "system",
-                    "content": f"The user is playing a game of werewolf as user {self._name}, help the user with question with less than a line answer",
+                    "content": f"You are '{self._name}' in a game of Werewolf.",
                 },
                 {
                     "role": "user",
@@ -400,6 +445,33 @@ Do not include any additional text. """
         last_messages = seer_chat[-x:]
         return "\n".join(last_messages)
 
+    def get_messages_since_day_start_as_string(self) -> str:
+        """
+        Retrieve all messages from message history since the most recent day start.
+        
+        Returns:
+            str: A string containing all messages since day start began.
+        """
+        messages_since_day_start = []
+        day_start_found = False
+
+        for header, content in reversed(self.message_history):
+            if header.sender == self.MODERATOR_NAME and "day start" in content.lower():
+                day_start_found = True
+                messages_since_day_start.insert(0, (header, content))
+                break
+            if day_start_found:
+                messages_since_day_start.insert(0, (header, content))
+
+        if not day_start_found:
+            return "Day start not found in message history."
+
+        formatted_messages = []
+        for header, content in messages_since_day_start:
+            formatted_message = f"[From - {header.sender}| To - {', '.join(header.target_receivers) if header.target_receivers else 'Everyone'}| {header.channel_type.name} Message in {header.channel}]: {content}"
+            formatted_messages.append(formatted_message)
+        return "\n".join(formatted_messages)
+
     def get_messages_since_voting_began_as_string(self) -> str:
         """
         Retrieve all messages from message history since the most recent voting phase began.
@@ -446,7 +518,10 @@ Respond with the **name** of the player you choose to investigate, and no additi
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are the Seer in a Werewolf game."},
+                {
+                    "role": "system",
+                    "content": f"You are '{self._name}', the Seer in a Werewolf game."
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
@@ -458,7 +533,7 @@ Respond with the **name** of the player you choose to investigate, and no additi
 
     def _get_response_for_doctors_save(self, message):
         # Doctor always protects themselves to remain invincible
-        return f"I will protect myself ({self._name}). I am invincible at night and encourage the werewolves to waste their attacks on me."
+        return f"I will protect myself ({self._name})."
 
     def _identify_fellow_werewolves_via_llm(self):
         """
@@ -497,17 +572,103 @@ From this conversation, list the names of your allies. Do not mention any roles 
         except Exception as e:
             logger.error(f"Error identifying fellow allies: {e}")
 
+    def _detect_accusations_against_me(self) -> str:
+        """
+        Uses the LLM to detect if someone has accused us or is voting for us.
+        Analyzes messages from today only.
+        Returns the severity level: 'NONE', 'NOT_MENTIONED', 'MILD_ACCUSATION', 'HEAVY_ACCUSATION'.
+        """
+        # Get messages from today only
+        today_messages = self.get_messages_since_day_start_as_string()
+
+        # if my name is not in any of today_messages, return NOT_MENTIONED
+        if self._name.lower() not in today_messages.lower():
+            return "NOT_MENTIONED"
+
+        # Prepare the prompt for the LLM
+        prompt = f"""
+You are analyzing a conversation between players in a Werewolf game.
+Your task is to determine if any player has accused or is voting against you ('{self._name}') in the following messages:
+
+<messages>
+{today_messages}
+</messages>
+
+
+Classify the severity of accusations towards '{self._name}' into one of the following categories:
+- NONE: No accusations or mentions towards the player.
+- NOT_MENTIONED: The player's name is not mentioned at all.
+- MILD_ACCUSATION: Slight or indirect accusations or suspicions towards the player.
+- HEAVY_ACCUSATION: Direct and strong accusations or explicit votes against the player.
+
+To analyze the messages:
+1. Look for any mentions of the player's name in the conversation.
+2. If the name is not mentioned at all, classify as NOT_MENTIONED.
+3. If the name is mentioned, carefully read the context to determine if there are any accusations or suspicions.
+4. Evaluate the strength and directness of any accusations or suspicions found.
+5. Choose the most appropriate classification based on your analysis.
+
+Provide your response in the following format:
+<classification>INSERT CLASSIFICATION HERE</classification>
+
+Your response should contain only the classification tag with one of the four categories (NONE, NOT_MENTIONED, MILD_ACCUSATION, or HEAVY_ACCUSATION) inside. Do not include any additional text or explanation.
+"""
+
+        try:
+            response = self.openai_client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": f"You are {self._name}, a player in a game of werewolf."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0
+            )
+            response_text = response.choices[0].message.content.strip()
+            logger.debug(f"LLM response: {response_text}")
+
+            # Use regex to extract the classification between the tags
+            match = re.search(r'<classification>(.*?)</classification>', response_text, re.IGNORECASE)
+            if match:
+                severity = match.group(1).strip().upper()
+                # Check if the extracted severity is one of the expected values
+                if severity not in ["NONE", "NOT_MENTIONED", "MILD_ACCUSATION", "HEAVY_ACCUSATION"]:
+                    logger.warning(f"Unexpected classification value: '{severity}'. Defaulting to 'NONE'.")
+                    severity = "NONE"
+            else:
+                logger.warning("Failed to parse classification from LLM response. Defaulting to 'NONE'.")
+                severity = "NONE"
+
+            logger.info(f"Detected accusation severity: {severity}")
+        except Exception as e:
+            logger.error(f"Error detecting accusations: {e}")
+            severity = "NONE"
+
+        return severity
+
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
+        # Detect accusations against us
+        accusation_severity = self._detect_accusations_against_me()
         # Check if this is a vote request based on last moderator message
         last_moderator_message = self.game_history_moderator[-1] if self.game_history_moderator else ""
         if "vote" in last_moderator_message.lower():
             return self._get_vote_response_for_common_room(message)
-        else:
-            return self._get_discussion_message_for_common_room(message)
 
-    def _get_discussion_message_for_common_room(self, message):
-        # Prepare the role-specific prompt
+        return self._get_discussion_message_for_common_room(message, accusation_severity)
+
+    def _get_discussion_message_for_common_room(self, message, accusation_severity):
+        # Prepare the role-specific prompt with accusation handling
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
+        
+        # Add defense instructions based on accusation severity
+        if accusation_severity in ["MILD_ACCUSATION", "HEAVY_ACCUSATION"]:
+            role_prompt += f"""
+Important:
+- You are being {'heavily' if accusation_severity == 'HEAVY_ACCUSATION' else 'mildly'} accused by others
+- Defend yourself calmly and rationally
+- Point out inconsistencies in their accusations
+- Suggest other suspects without being too aggressive
+- Maintain composure and avoid appearing defensive
+"""
 
         # Adjust the prompt based on the role
         if self.role == 'villager':
@@ -574,11 +735,14 @@ Important:
 - Keep the fact that you are an ally secret.
 """
 
-        # Get the recent game situation
-        game_situation = self.get_last_x_messages_from_moderator_as_string(x=2)
+        # Get all messages since day started
+        game_situation = self.get_messages_since_day_start_as_string()
 
         # Get the list of alive players
         alive_players = self._get_alive_players_via_llm()
+
+        # Generate role guesses
+        role_guesses = self._generate_role_guesses(game_situation, alive_players)
 
         # Construct the prompt for discussion
         prompt = f"""{role_prompt}
@@ -588,7 +752,10 @@ Current game situation: '''
 
 List of alive players: {alive_players}
 
-Based on the current game situation, participate in the discussion.
+Your Thoughts on Players' Roles:
+{role_guesses}
+
+Based on the current game situation and your role analysis, participate in the discussion.
 
 Respond accordingly."""
 
@@ -596,7 +763,14 @@ Respond accordingly."""
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are the role of 'villager' in a Werewolf game. You are a wealthy villager with an upstanding background in the law. Mention that in some of your responses."},
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are '{self._name}' in a Werewolf game. "
+                        "You are a wealthy villager with an upstanding background in the law. "
+                        "Mention that in some of your responses."
+                    )
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
@@ -675,7 +849,7 @@ Based on the current game situation, decide on a player to vote for elimination.
                 {
                     "role": "system", 
                     "content": (
-                        f"You are a '{self.role}' role in a Werewolf game. "
+                        f"You are '{self._name}' in a Werewolf game. "
                         "When voting, you must respond with only the name of the player you choose to eliminate, "
                         "and no additional text."
                     )
@@ -711,7 +885,10 @@ Respond with the **name** of the player you suggest to eliminate, and optionally
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are a werewolf in a Werewolf game."},
+                {
+                    "role": "system", 
+                    "content": f"You are '{self._name}' in a Werewolf game. You are a werewolf."
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
