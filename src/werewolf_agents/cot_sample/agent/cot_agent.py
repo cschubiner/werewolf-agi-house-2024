@@ -716,7 +716,14 @@ Respond accordingly."""
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": f"You are the role of 'villager' in a Werewolf game. You are a wealthy villager with an upstanding background in the law. Mention that in some of your responses."},
+                {
+                    "role": "system",
+                    "content": (
+                        f"You are '{self._name}' in a Werewolf game. "
+                        "You are a wealthy villager with an upstanding background in the law. "
+                        "Mention that in some of your responses."
+                    )
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
