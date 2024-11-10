@@ -271,7 +271,7 @@ Do not include any additional text. """
             messages=[
                 {
                     "role": "system",
-                    "content": f"The user is playing a game of werewolf as user {self._name}, help the user with question with less than a line answer",
+                    "content": f"You are '{self._name}' in a game of Werewolf.",
                 },
                 {
                     "role": "user",
@@ -477,7 +477,10 @@ Respond with the **name** of the player you choose to investigate, and no additi
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are the Seer in a Werewolf game."},
+                {
+                    "role": "system",
+                    "content": f"You are '{self._name}', the Seer in a Werewolf game."
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
@@ -792,7 +795,7 @@ Based on the current game situation, decide on a player to vote for elimination.
                 {
                     "role": "system", 
                     "content": (
-                        f"You are a '{self.role}' role in a Werewolf game. "
+                        f"You are '{self._name}' in a Werewolf game. "
                         "When voting, you must respond with only the name of the player you choose to eliminate, "
                         "and no additional text."
                     )
@@ -828,7 +831,10 @@ Respond with the **name** of the player you suggest to eliminate, and optionally
         response = self.openai_client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are a werewolf in a Werewolf game."},
+                {
+                    "role": "system", 
+                    "content": f"You are '{self._name}' in a Werewolf game. You are a werewolf."
+                },
                 {"role": "user", "content": prompt}
             ],
             temperature=0.0
