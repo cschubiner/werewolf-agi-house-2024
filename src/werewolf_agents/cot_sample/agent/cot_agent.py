@@ -528,7 +528,54 @@ From this conversation, list the names of your allies. Do not mention any roles 
         except Exception as e:
             logger.error(f"Error identifying fellow allies: {e}")
 
+    def _detect_accusations_against_me(self) -> str:
+        """
+        Uses the LLM to detect if someone has accused us or is voting for us.
+        Analyzes messages from today only.
+        Returns the severity level: 'NONE', 'NOT_MENTIONED', 'MILD_ACCUSATION', 'HEAVY_ACCUSATION'.
+        """
+        # Get messages from today only
+        today_messages = self.get_messages_since_day_start_as_string()
+
+        # Prepare the prompt for the LLM
+        prompt = f"""
+You are analyzing a conversation between players in a Werewolf game.
+Your task is to determine if any player has accused or is voting against '{self._name}' in the following messages:
+
+{today_messages}
+
+Classify the severity of accusations towards '{self._name}' into one of the following categories:
+- NONE: No accusations or mentions towards you.
+- NOT_MENTIONED: Your name is not mentioned at all.
+- MILD_ACCUSATION: Slight or indirect accusations or suspicions towards you.
+- HEAVY_ACCUSATION: Direct and strong accusations or explicit votes against you.
+
+Respond with only the severity level (NONE, NOT_MENTIONED, MILD_ACCUSATION, HEAVY_ACCUSATION), and no additional text.
+"""
+
+        try:
+            response = self.openai_client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant that analyzes game conversations."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.0
+            )
+            severity = response.choices[0].message.content.strip().upper()
+            # Ensure the severity is one of the expected values
+            if severity not in ["NONE", "NOT_MENTIONED", "MILD_ACCUSATION", "HEAVY_ACCUSATION"]:
+                severity = "NONE"
+            logger.info(f"Detected accusation severity: {severity}")
+        except Exception as e:
+            logger.error(f"Error detecting accusations: {e}")
+            severity = "NONE"
+
+        return severity
+
     def _get_discussion_message_or_vote_response_for_common_room(self, message):
+        # Detect accusations against us
+        accusation_severity = self._detect_accusations_against_me()
         # Check if this is a vote request based on last moderator message
         last_moderator_message = self.game_history_moderator[-1] if self.game_history_moderator else ""
         if "vote" in last_moderator_message.lower():
@@ -537,8 +584,19 @@ From this conversation, list the names of your allies. Do not mention any roles 
             return self._get_discussion_message_for_common_room(message)
 
     def _get_discussion_message_for_common_room(self, message):
-        # Prepare the role-specific prompt
+        # Prepare the role-specific prompt with accusation handling
         role_prompt = getattr(self, f"{self.role.upper()}_PROMPT", self.VILLAGER_PROMPT)
+        
+        # Add defense instructions based on accusation severity
+        if accusation_severity in ["MILD_ACCUSATION", "HEAVY_ACCUSATION"]:
+            role_prompt += f"""
+Important:
+- You are being {'heavily' if accusation_severity == 'HEAVY_ACCUSATION' else 'mildly'} accused by others
+- Defend yourself calmly and rationally
+- Point out inconsistencies in their accusations
+- Suggest other suspects without being too aggressive
+- Maintain composure and avoid appearing defensive
+"""
 
         # Adjust the prompt based on the role
         if self.role == 'villager':
