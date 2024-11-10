@@ -93,7 +93,7 @@ Important:
                 if not self.fellow_werewolves:
                     self._identify_fellow_werewolves_via_llm()
                 # Include fellow werewolves, marking them as 'Villager'
-                known_roles_info = "\n".join([f"{player}: Villager" for player in self.fellow_werewolves])
+                known_roles_info = "\n".join([f"{player}: 80% likely to be Villager" for player in self.fellow_werewolves])
         except Exception as e:
             logger.error(f"Error populating known_roles_info: {e}")
 
