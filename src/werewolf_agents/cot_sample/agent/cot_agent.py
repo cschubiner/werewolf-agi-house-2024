@@ -64,12 +64,12 @@ class CoTAgent(IReactiveAgent):
     3. Guide village discussions subtly.
     4. Be prepared to reveal your role if it can save the village."""
 
-    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to help the village by keeping yourself alive. Consider the following:
+    DOCTOR_PROMPT = """You are the doctor in a game of Werewolf. Your ability is to protect one player from elimination each night. Your goal is to help the village by drawing the werewolves' attacks onto yourself. Consider the following:
     1. Always protect yourself every night.
-    2. Do not protect others under any circumstances.
-    3. Always reveal your role during discussions.
-    4. Emphasize that you are an important ally to the team.
-    5. Encourage others not to eliminate you because of your role."""
+    2. Always reveal your role during discussions.
+    3. Emphasize that you are healing yourself every night and cannot be killed at night.
+    4. Encourage the werewolves to target you at night.
+    5. Assure the villagers that you are an important ally and should not be eliminated."""
 
     def __init__(self):
         logger.debug("WerewolfAgent initialized.")
@@ -457,9 +457,8 @@ Respond with the **name** of the player you choose to investigate, and no additi
         return action
 
     def _get_response_for_doctors_save(self, message):
-        # Doctor always protects themselves
-        # action = self._name
-        return f"I will protect myself ({self._name})."
+        # Doctor always protects themselves to remain invincible
+        return f"I will protect myself ({self._name}). I am invincible at night and encourage the werewolves to waste their attacks on me."
 
     def _identify_fellow_werewolves_via_llm(self):
         """
@@ -525,8 +524,9 @@ Important:
             role_prompt += """
 Important:
 - Always mention in your final response that you are the doctor.
-- Explicitly state that you're an important ally to the team.
-- Encourage others not to eliminate you because of your role.
+- Explicitly state that you are healing yourself every night and cannot be killed at night.
+- Encourage the werewolves to target you at night.
+- Assure the villagers that you are an important ally and should not be eliminated.
 - Keep whatever is in the rest of the prompt.
 """
 
