@@ -707,7 +707,10 @@ Important:
 - Maintain composure and avoid appearing defensive
 - Avoid accusing other players strongly, if at all
 - Try to manipulate others into trusting you by acting friendly and supportive
-- Emphasize your value to the group and how you want to help everyone
+
+Write 200+ words or so in your response that go through the entire game situation and your thoughts on X Y and Z reasons that some other player is the werewolf.
+
+Additionally, mention that you have a special role that you don't want to reveal quite yet, but it's important that I stay alive if even for one more day.
 """
         elif accusation_severity == "MILD_ACCUSATION":
             role_prompt += f"""
