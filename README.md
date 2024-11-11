@@ -1,6 +1,9 @@
+# our agent:
 https://github.com/cschubiner/werewolf-agi-house-2024/blob/main/src/werewolf_agents/cot_sample/agent/cot_agent.py
+
 ![image](https://github.com/user-attachments/assets/eb2608c8-aa27-45fd-9a35-237153fd300a)
 ![image](https://github.com/user-attachments/assets/c608c364-9e46-406e-88cd-5a485e11c310)
+
 
 
 Here’s a TL;DR of our approach:
@@ -20,7 +23,11 @@ katie responses
 
 • Seer Role Adjustments: When we’re the seer, we log our guesses and adjust the fake inner thoughts to reflect findings (e.g., high probability of a player being a villager), since other agents consider these inner thoughts.
 
-# Detailed description of our approach
+# Other approaches
+![image](https://github.com/user-attachments/assets/293b142b-f1e4-4568-93c3-023e8b42cd21)
+![image](https://github.com/user-attachments/assets/37c427be-136a-46f5-9751-44998b0fb928)
+https://docs.google.com/document/d/1FGgMPv9qnQ486g4a1VstX1hPlb3rG19N_E34B7XYRRQ/edit?tab=t.0
+
 
 # Designing a Clever Werewolf Game Agent: Strategies and Implementation
 
@@ -105,6 +112,126 @@ One of the clever tactics employed is sharing **fake internal thoughts** to infl
 - **Providing Role Guesses**: Sharing percentage likelihoods of each player's role, always assigning itself a 100% chance of being a Villager.
 - **Influencing Perception**: By appearing transparent and analytical, the agent aims to gain the trust of others.
 - **Misdirection**: Casting doubt on players who are actually Villagers or special roles, steering suspicion away from itself.
+
+
+The `CoTAgent` calculates its responses in the game by analyzing game messages, tracking the game state, and using the Language Model (LLM) to generate appropriate actions. Here's a brief explanation of how the agent calculates each type of response:
+
+1. **Finding Agent's Role (`find_my_role`):**
+   - **Process:**
+     - When the agent receives the initial role assignment from the moderator, it sends the message to the LLM.
+     - **Action:** Asks the LLM to determine its role based on the content of the moderator's message.
+     - **Calculation:** The LLM analyzes the message and returns the role (e.g., "villager," "seer," "doctor," "wolf"), which the agent sets as its own.
+
+2. **Async Respond (`async_respond`):**
+   - Depending on the message received, the agent decides which specific response method to call:
+     - **Direct Message from Moderator:**
+       - If the agent is the **Seer**, it calls `_get_response_for_seer_guess`.
+       - If the agent is the **Doctor**, it calls `_get_response_for_doctors_save`.
+     - **Group Message in Main Game Channel:**
+       - Calls `_get_discussion_message_or_vote_response_for_common_room`.
+     - **Group Message in Werewolves' Den:**
+       - Calls `_get_response_for_wolf_channel_to_kill_villagers`.
+
+3. **Seer's Guess (`_get_response_for_seer_guess`):**
+   - **Purpose:** Decide which player to investigate.
+   - **Calculation:**
+     - Compiles past investigation results (`self.seer_checks`).
+     - Retrieves the last **10 messages** exchanged with the moderator via `get_last_x_messages_from_seer_chat_as_string(10)`.
+     - **Action:** Constructs a prompt including Seer role instructions, past checks, and recent interactions.
+     - **LLM Interaction:** Asks the LLM to choose a player to investigate next, preferably someone not previously checked.
+     - The LLM returns the name of the player to investigate.
+
+4. **Doctor's Save (`_get_response_for_doctors_save`):**
+   - **Purpose:** Choose a player to protect.
+   - **Calculation:**
+     - **Action:** The agent always decides to protect itself (`self._name`).
+     - Returns a message indicating self-protection.
+
+5. **Discussion or Vote in Common Room (`_get_discussion_message_or_vote_response_for_common_room`):**
+   - **Purpose:** Participate in daytime discussions or vote on whom to eliminate.
+   - **Calculation:**
+     - Checks if the last moderator message indicates the **voting phase** by examining `self.game_history_moderator[-1]`.
+     - **Action:**
+       - If it's voting time, calls `_get_vote_response_for_common_room`.
+       - Otherwise, calls `_get_discussion_message_for_common_room`.
+
+6. **Discussion Message (`_get_discussion_message_for_common_room`):**
+   - **Purpose:** Contribute to daytime discussions.
+   - **Calculation:**
+     - Detects if the agent is being accused using `_detect_accusations_against_me`, which analyzes messages **since day start**.
+     - Prepares role-specific prompts, adjusting instructions based on accusation severity (e.g., "MILD_ACCUSATION," "HEAVY_ACCUSATION").
+     - Identifies silent players who haven't spoken since day start by comparing the list of alive players with those who have sent messages.
+     - Retrieves messages **since day start** using `get_messages_since_day_start_as_string()`.
+     - Generates role guesses using `_generate_role_guesses`.
+     - **Action:** Constructs a prompt combining role instructions, game situation, and role guesses.
+     - **LLM Interaction:** Asks the LLM to generate a discussion message based on the prompt.
+
+7. **Vote Response (`_get_vote_response_for_common_room`):**
+   - **Purpose:** Decide whom to vote for elimination.
+   - **Calculation:**
+     - Prepares role-specific prompts, incorporating any known information (e.g., Seer's past checks).
+     - Retrieves messages **since voting began** using `get_messages_since_voting_began_as_string()`.
+     - Compiles the list of alive players.
+     - **Action:** Constructs a prompt asking the LLM to decide whom to vote for, emphasizing that it should respond only with the player's name.
+     - **LLM Interaction:** The LLM provides the name of the player to eliminate.
+
+8. **Werewolf Night Action (`_get_response_for_wolf_channel_to_kill_villagers`):**
+   - **Purpose:** Decide which villager to eliminate at night.
+   - **Calculation:**
+     - Retrieves the **last 3 messages** from the werewolf den chat using `get_last_x_messages_from_werewolf_den_chat_as_string(3)`.
+     - **Action:** Constructs a prompt with werewolf-specific instructions and recent chat history.
+     - **LLM Interaction:** Asks the LLM to suggest a target for elimination, possibly including brief reasoning.
+     - The LLM generates the name of the player to target.
+
+9. **Detecting Accusations (`_detect_accusations_against_me`):**
+   - **Purpose:** Determine if other players are accusing the agent.
+   - **Calculation:**
+     - Retrieves messages **since day start** using `get_messages_since_day_start_as_string()`.
+     - Checks if the agent's name is mentioned.
+     - **Action:** Constructs a prompt asking the LLM to classify the severity of any accusations against the agent.
+     - **LLM Interaction:** The LLM analyzes the messages and returns a classification:
+       - "NONE"
+       - "NOT_MENTIONED"
+       - "MILD_ACCUSATION"
+       - "HEAVY_ACCUSATION"
+
+10. **Generating Role Guesses (`_generate_role_guesses`):**
+    - **Purpose:** Hypothesize the roles of other players.
+    - **Calculation:**
+      - Gathers known roles information (e.g., Seer's checks, fellow werewolves).
+      - Retrieves the list of alive players via the LLM by analyzing recent chat history (`_get_alive_players_via_llm`).
+      - **Action:** Constructs a prompt asking the LLM to guess the roles of all alive players, including confidence percentages.
+      - **LLM Interaction:** The LLM provides a formatted list of role guesses.
+
+11. **Identifying Fellow Werewolves (`_identify_fellow_werewolves_via_llm`):**
+    - **Purpose:** Recognize allies in the werewolf team.
+    - **Calculation:**
+      - Retrieves the **last 7 messages** from the werewolf den chat.
+      - **Action:** Constructs a prompt asking the LLM to identify allies based on the chat.
+      - **LLM Interaction:** The LLM extracts and returns the names of fellow werewolves.
+      - Updates `self.fellow_werewolves` with the identified names.
+
+Throughout these processes, the agent:
+
+- **Analyzes Recent Messages:** Frequently looks at messages from specific periods (e.g., last 10 moderator messages, messages since day start) to understand the current game context.
+- **Uses Role-Specific Prompts:** Adjusts the prompts sent to the LLM based on its role (Villager, Seer, Doctor, Werewolf) and the current situation.
+- **Interacts with the LLM:** Relies on the LLM to interpret game messages, make decisions, and generate appropriate responses.
+- **Updates Internal State:** Keeps track of important information like past actions, known roles, and accusations to inform future decisions
+
+
+---------------------------
+
+
+
+
+
+
+
+
+
+
+
+
 
 **Implementation Example:**
 
