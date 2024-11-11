@@ -1,3 +1,26 @@
+https://github.com/cschubiner/werewolf-agi-house-2024/blob/main/src/werewolf_agents/cot_sample/agent/cot_agent.py
+![image](https://github.com/user-attachments/assets/eb2608c8-aa27-45fd-9a35-237153fd300a)
+![image](https://github.com/user-attachments/assets/c608c364-9e46-406e-88cd-5a485e11c310)
+
+
+Here’s a TL;DR of our approach:
+
+• Fake Inner Thoughts: We create “fake” inner thoughts that assign percentage likelihoods to each player’s role, always giving ourselves a 100% chance of being a villager. These thoughts aim to convince others we’re innocent.
+
+katie responses
+katie responses
+3432×1018 294 KB
+• Self-Protection as Doctor: If we’re the doctor, we only protect ourselves, as we know we’re safe.
+
+• Werewolf Role Concealment: When we’re the werewolf, we don’t let our agent know its own role in the group chat to prevent accidental self-reveals. The agent thinks it’s a villager.
+
+• Voting Strategy as Werewolf: Our werewolf prioritizes voting against the suspected seer, followed by the most likely villager, and then the doctor (assuming they might also self-protect).
+
+• Subtle Suspicion Over Accusations: Instead of direct accusations, we use light suspicion, which feels less threatening to other agents.
+
+• Seer Role Adjustments: When we’re the seer, we log our guesses and adjust the fake inner thoughts to reflect findings (e.g., high probability of a player being a villager), since other agents consider these inner thoughts.
+
+
 # Quick Start
 
 Watch Quick Start Video (Recommended): https://openagi.discourse.group/t/agi-thon-werewolf-agents-tournament-home/2465#p-3097-quick-start-4
