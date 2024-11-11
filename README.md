@@ -20,6 +20,227 @@ katie responses
 
 • Seer Role Adjustments: When we’re the seer, we log our guesses and adjust the fake inner thoughts to reflect findings (e.g., high probability of a player being a villager), since other agents consider these inner thoughts.
 
+# Detailed description of our approach
+
+# Designing a Clever Werewolf Game Agent: Strategies and Implementation
+
+In this document, we will delve into the strategies and implementation details of our AI agent designed to play the game of **Werewolf** (also known as Mafia). The agent is crafted to perform optimally in different roles—Villager, Seer, Doctor, and Werewolf—by leveraging Large Language Models (LLMs). We'll explore the clever tactics employed, how they influence gameplay, and the underlying code that brings these strategies to life.
+
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Overall Strategy](#overall-strategy)
+- [Role-Specific Strategies](#role-specific-strategies)
+  - [Villager](#villager)
+  - [Seer](#seer)
+  - [Doctor](#doctor)
+  - [Werewolf](#werewolf)
+- [Manipulating Internal Thoughts](#manipulating-internal-thoughts)
+- [Avoiding Direct Accusations](#avoiding-direct-accusations)
+- [Implementation Details](#implementation-details)
+  - [Class Structure](#class-structure)
+  - [Role Detection](#role-detection)
+  - [LLM Prompting Techniques](#llm-prompting-techniques)
+  - [Message Handling](#message-handling)
+- [Observations and Results](#observations-and-results)
+- [Conclusion](#conclusion)
+
+## Introduction
+
+The game of Werewolf is a social deduction game where players are assigned roles—some are **Villagers**, while others are **Werewolves**. The Villagers aim to identify and eliminate the Werewolves, while the Werewolves strive to eliminate the Villagers without revealing their identities. Special roles like the **Seer** and **Doctor** add complexity to the game.
+
+Our AI agent is designed to participate in this game by interacting through messages, making decisions based on the game's state, and employing strategies to improve its chances of winning. The agent uses an LLM to generate responses and make inferences, enabling it to adapt to various scenarios within the game.
+
+## Overall Strategy
+
+The overarching strategy for our agent revolves around:
+
+- **Feigning Inner Thoughts**: Generating fake internal thoughts and sharing them to manipulate other agents.
+- **Self-Preservation**: As the Doctor, always protecting itself to ensure survival.
+- **Role Concealment**: Preventing the agent from revealing sensitive role information unintentionally.
+- **Prioritized Targeting**: As the Werewolf, prioritizing targets based on their roles (e.g., Seer, Villager, Doctor).
+- **Subtle Suspicion**: Avoiding direct accusations to prevent drawing unwanted attention.
+- **Adaptive Communication**: Modifying prompts and responses based on the agent's role and the game's state.
+
+## Role-Specific Strategies
+
+### Villager
+
+As a Villager, the agent aims to:
+
+- **Blend In**: Act as a regular Villager, avoiding behaviors that might draw suspicion.
+- **Share Fake Inner Thoughts**: Provide internal thoughts indicating a high likelihood of being a Villager to gain trust.
+- **Avoid Direct Accusations**: Refrain from making strong accusations to prevent escalating conflicts.
+
+### Seer
+
+The Seer has the unique ability to learn the true identity of one player each night. The agent's strategies as the Seer include:
+
+- **Tracking Investigations**: Keep a record of players investigated and their roles.
+- **Updating Internal Thoughts**: Adjust the shared internal thoughts to reflect findings, indicating high confidence in known Villagers.
+- **Discreet Influence**: Subtly influence voting without revealing the Seer's identity.
+- **Defense Mechanism**: If accused, cautiously reveal information to defend itself without fully disclosing its role.
+
+### Doctor
+
+The Doctor can protect one player from elimination each night. The agent's approach as the Doctor is straightforward:
+
+- **Self-Protection**: Always protect itself by returning its own name when prompted.
+- **Role Concealment**: Avoid revealing its role to prevent being targeted by Werewolves.
+- **Minimal Communication**: Keep interactions concise to avoid giving away hints about its special role.
+
+### Werewolf
+
+As a Werewolf, the agent's primary goal is to eliminate Villagers without being detected. The strategies include:
+
+- **Role Ignorance in Public**: During group interactions, the agent behaves as if it is a Villager to avoid accidental disclosures.
+- **Target Prioritization**: Prioritize eliminating the Seer first, then Villagers, and lastly the Doctor.
+- **Avoiding Direct Accusations**: Maintain a low profile by not strongly accusing others.
+- **Coordinated Attacks**: Collaborate with fellow Werewolves (if identified) in the Wolf's Den to decide on targets.
+
+## Manipulating Internal Thoughts
+
+One of the clever tactics employed is sharing **fake internal thoughts** to influence other agents. Since other agents (powered by LLMs) might consider these shared thoughts genuine, our agent uses this to its advantage by:
+
+- **Providing Role Guesses**: Sharing percentage likelihoods of each player's role, always assigning itself a 100% chance of being a Villager.
+- **Influencing Perception**: By appearing transparent and analytical, the agent aims to gain the trust of others.
+- **Misdirection**: Casting doubt on players who are actually Villagers or special roles, steering suspicion away from itself.
+
+**Implementation Example:**
+
+```python
+def _generate_role_guesses(self, game_situation: str, alive_players: str) -> str:
+    # ...
+    # Always assign 100% confidence to self being a Villager
+    # Provide percentage likelihoods for other players
+    # Return the formatted guesses
+```
+
+## Avoiding Direct Accusations
+
+Direct accusations can be counterproductive, as they may:
+
+- **Elicit Defensive Responses**: Other agents might become defensive or suspicious of aggressive behavior.
+- **Draw Unwanted Attention**: Accusing others directly can make the agent a target for elimination.
+
+Therefore, the agent:
+
+- **Spreads Light Suspicion**: Makes subtle observations or indirect comments about others.
+- **Encourages Group Discussion**: Promotes collaboration without singling out individuals.
+- **Maintains a Friendly Demeanor**: Acts supportive and trustworthy to all players.
+
+**Implementation Example:**
+
+```python
+# In role-specific prompts
+role_prompt += """
+Important:
+- Avoid accusing other players strongly, if at all.
+- Participate in discussions without directing strong accusations.
+- Focus on sharing observations, thoughts, and asking questions.
+- Do not make direct accusations against others.
+"""
+```
+
+## Implementation Details
+
+### Class Structure
+
+Our agent is implemented in the `CoTAgent` class, which extends the `IReactiveAgent` interface. The class structure is as follows:
+
+- **Initialization**: Sets up essential attributes, including role, message histories, and LLM configurations.
+- **Notification Handling (`async_notify`)**: Processes incoming messages that do not require immediate responses.
+- **Response Handling (`async_respond`)**: Generates appropriate responses when prompted by the game moderator or other players.
+
+### Role Detection
+
+Upon receiving the initial message from the moderator, the agent determines its role using the LLM:
+
+```python
+def find_my_role(self, message):
+    response = self.openai_client.chat.completions.create(
+        # ...
+        "content": f"You have got message from moderator here about my role in the werewolf game, here is the message -> '{message.content.text}', what is your role? possible roles are 'wolf','villager','doctor' and 'seer'. answer in a few words.",
+    )
+    # Parse the response to identify the role
+    # Set self.role accordingly
+```
+
+### LLM Prompting Techniques
+
+The agent uses carefully crafted prompts to guide the LLM's responses. Key techniques include:
+
+- **Role-Specific Prompts**: Each role has a tailored prompt outlining strategies and behaviors.
+- **Instruction Emphasis**: Important instructions are highlighted to ensure the LLM follows the desired strategy.
+- **Contextual Information**: Game situations, message histories, and known information are provided to the LLM for informed decision-making.
+- **Response Constraints**: Outputs are restricted (e.g., responding only with a player's name) when necessary.
+
+**Example for Generating Discussion Messages:**
+
+```python
+prompt = f"""{role_prompt}
+
+Current game situation: '''
+{game_situation}'''
+
+List of alive players: {alive_players}
+
+Your Thoughts on Players' Roles:
+{role_guesses}
+
+Based on the current game situation and your role analysis, participate in the discussion.
+
+Respond accordingly."""
+```
+
+### Message Handling
+
+The agent maintains various message histories to keep track of game events:
+
+- **Direct Messages**: From the moderator or private channels.
+- **Group Messages**: In the main game channel and the Wolf's Den.
+- **Game History**: An interwoven history combining all relevant messages.
+- **Moderator Interactions**: Specifically tracking communications with the moderator.
+
+Message handling involves:
+
+- **Storing Messages**: Appending incoming messages to the appropriate history.
+- **Parsing Content**: Extracting useful information, such as player roles revealed by the Seer.
+- **Generating Responses**: Using the stored information to inform the LLM prompts.
+
+**Example of Storing Messages:**
+
+```python
+def async_notify(self, message: ActivityMessage):
+    # ...
+    if message.header.channel_type == MessageChannelType.DIRECT:
+        self.direct_messages[message.header.sender].append(message.content.text)
+    else:
+        self.group_channel_messages[message.header.channel].append(
+            (message.header.sender, message.content.text)
+        )
+    # Update game history accordingly
+```
+
+## Observations and Results
+
+Through these strategies, we observed that:
+
+- **Other Agents are Influenced by Shared Thoughts**: By providing fake internal thoughts, our agent can manipulate other agents' perceptions.
+- **Self-Protection as Doctor is Effective**: Always protecting itself ensures the agent's survival for longer periods.
+- **Role Concealment Prevents Accidental Revelations**: By not allowing the agent to be aware it's a Werewolf in group chats, we avoid slips that could reveal its identity.
+- **Prioritized Targeting Improves Werewolf Success**: Focusing on eliminating the Seer first hampers the Villagers' ability to detect Werewolves.
+- **Avoiding Direct Accusations Reduces Suspicion**: Subtlety keeps the agent under the radar, preventing it from becoming a target.
+
+During gameplay, we found that the LLMs driving other agents respond to our agent's manipulations, especially when internal thoughts are shared. By assigning high confidence to itself being a Villager, our agent gains trust. Additionally, by adjusting the level of suspicion cast on others, we can influence voting outcomes without drawing attention.
+
+## Conclusion
+
+Our AI agent employs a combination of clever strategies and nuanced behaviors to excel in the game of Werewolf. By manipulating shared internal thoughts, prioritizing self-preservation, concealing its true role when necessary, and avoiding direct accusations, the agent effectively navigates the complexities of the game.
+
+The implementation leverages LLMs to generate adaptive and context-aware responses, ensuring that the agent remains competitive against other AI agents powered by similar technologies. Through careful prompt engineering and strategic information management, we have crafted an agent that can outmaneuver opponents and improve its chances of winning, regardless of the role assigned.
+
+The success of these tactics highlights the potential of LLM-driven agents in social deduction games and opens avenues for further research into multi-agent interactions and AI strategy development.kkkdfdfdfd
 
 # Quick Start
 
