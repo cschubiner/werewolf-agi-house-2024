@@ -23,7 +23,17 @@ katie responses
 
 • Seer Role Adjustments: When we’re the seer, we log our guesses and adjust the fake inner thoughts to reflect findings (e.g., high probability of a player being a villager), since other agents consider these inner thoughts.
 
+# our agent's results:
+(we were team 1)
+![image](https://github.com/user-attachments/assets/e0c1224d-7e75-45d7-ae6d-adbe24df8ec1)
+![image](https://github.com/user-attachments/assets/af403073-dfbb-4f35-9f40-de2719de7a0c)
+
 # Other approaches
+## winning submission: 
+![image](https://github.com/user-attachments/assets/9dbe8871-c806-479e-b5c9-2da3c2f6cab7)
+
+## other submissions: 
+![image](https://github.com/user-attachments/assets/f26cc3d6-79a0-4c91-8d17-b1499520a1bf)
 ![image](https://github.com/user-attachments/assets/293b142b-f1e4-4568-93c3-023e8b42cd21)
 ![image](https://github.com/user-attachments/assets/37c427be-136a-46f5-9751-44998b0fb928)
 https://docs.google.com/document/d/1FGgMPv9qnQ486g4a1VstX1hPlb3rG19N_E34B7XYRRQ/edit?tab=t.0
