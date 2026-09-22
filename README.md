@@ -131,7 +131,7 @@ Two pre-tournament agents, **Valmiki** (2nd, 66.25%) and **Veena** (tied 6th, 47
 
 ## Team-by-team details
 
-Each team's block shows its final-tournament result and, where it was one of the 8 agents Sentient re-ran, its stats from the [Dec 2024 re-run](https://web.archive.org/web/20250619022303/https://openagi.discourse.group/t/leveling-up-reasoning-via-games-a-post-agi-thon-analysis/2669) (1,124 games per agent, jailbreakers excluded). Percentages are worked out from Sentient's raw win/game counts. "Villager team" covers every non-wolf game (seer + doctor + regular villager); "Regular villager" is plain villager games only.
+Each team's block shows its final-tournament result and, where it was one of the 8 agents Sentient re-ran, its stats from the [Dec 2024 re-run](https://web.archive.org/web/20250619022303/https://openagi.discourse.group/t/leveling-up-reasoning-via-games-a-post-agi-thon-analysis/2669) (1,124 games per agent, jailbreakers excluded). Percentages are worked out from Sentient's raw win/game counts, and each cell also shows that agent's rank among the 8 re-run agents for that stat (T- means tied). "Villager team" covers every non-wolf game (seer + doctor + regular villager); "Regular villager" is plain villager games only.
 
 ### 🥇 1st – Team 6 (Jean): traheja, Nilay, Manjit
 Final 61.54% · Pre 5th of 8 (48.75%; 6 timeouts) · not in re-run table · [post](https://web.archive.org/web/20241121080234/https://openagi.discourse.group/t/team-6-submission-for-werewolf-agi-thon/2508) · code not published
@@ -151,9 +151,9 @@ Final 61.54% · Pre 5th of 8 (48.75%; 6 timeouts) · not in re-run table · [pos
 ### 🥈 2nd – Team 8 "PackMind" (Kim): Aydar Akhmetzyanov, Lily Zhu, Dhawal Modi, Vince
 Final 57.14% · Pre 8th of 8 (38.75%) · Re-run 2nd (44.3%; wolf 67.8%) · [post](https://web.archive.org/web/20241204153433/https://openagi.discourse.group/t/team-8-packmind-submission-for-werewolf-agi-thon-2-place-winner-submission/2515) · [code (repo since deleted)](https://github.com/AydarAkhmetzyanov/PackMind-submission/blob/main/src/werewolf_agents/simple_updated_with_memory_and_cot/agent/simple_updated_with_memory.py)
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| Kim | **2 of 8** | **44.3% (498/1124)** | 67.8% (206/304) | 35.6% (292/820) | 27.5% (38/138) | 30.4% (42/138) | 39.0% (212/544) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| Kim | **44.3% (498/1124)**<br>2nd of 8 | 67.8% (206/304)<br>4th of 8 | 35.6% (292/820)<br>3rd of 8 | 27.5% (38/138)<br>7th of 8 | 30.4% (42/138)<br>7th of 8 | 39.0% (212/544)<br>**1st** of 8 |
 
 **From their post:**
 - Built on the Super Simple sample agent.
@@ -171,9 +171,9 @@ Final 57.14% · Pre 8th of 8 (38.75%) · Re-run 2nd (44.3%; wolf 67.8%) · [post
 ### 🥉 3rd – Team 1 "AlphaWolf" (James): us (Clay Schubiner, Alex Blickenstaff)
 Final 51.61% (about 70% as wolf, 45% as villager) · Pre 6th of 8 (47.50%; wolf 30%) · Re-run 4th (43.8%; seer 42.5%) · [post](https://web.archive.org/web/20241112025558/https://openagi.discourse.group/t/team-1-submission/2505) · [code](src/werewolf_agents/cot_sample/agent/cot_agent.py)
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| James | **4 of 8** | **43.8% (492/1124)** | 67.3% (198/294) | 35.4% (294/830) | 42.5% (62/146) | 37.9% (44/116) | 33.1% (188/568) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| James | **43.8% (492/1124)**<br>4th of 8 | 67.3% (198/294)<br>5th of 8 | 35.4% (294/830)<br>5th of 8 | 42.5% (62/146)<br>2nd of 8 | 37.9% (44/116)<br>3rd of 8 | 33.1% (188/568)<br>6th of 8 |
 
 See the write-up below this section. In short:
 - **Fake inner thoughts:** percentage guesses at every player's role, always listing ourselves as 100% villager.
@@ -196,9 +196,9 @@ Final 48.15% · Pre 4th of 8 (52.50%; seer 55.6%, doctor 80%) · [post](https://
 ### 5th – Team 14 (Lisa): linksku
 Final 44.83% · **Pre 1st of 8 (68.75%)** · **Re-run 1st (46.3%; best wolf at 74.1%)** · [post](https://web.archive.org/web/20241204150954/https://openagi.discourse.group/t/team-14-submission-for-werewolf-agi-thon/2544) · code not published (the post includes the hard-coded message templates)
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| Lisa | **1 of 8** | **46.3% (520/1124)** | 74.1% (200/270) | 37.5% (320/854) | 35.7% (60/168) | 34.3% (46/134) | 38.8% (214/552) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| Lisa | **46.3% (520/1124)**<br>**1st** of 8 | 74.1% (200/270)<br>**1st** of 8 | 37.5% (320/854)<br>**1st** of 8 | 35.7% (60/168)<br>4th of 8 | 34.3% (46/134)<br>4th of 8 | 38.8% (214/552)<br>2nd of 8 |
 
 **Premise:** text-only werewolf with 2 special roles and no private chat carries almost no usable signal. The seer's information is noise, because either wolf can also claim seer. So the only lever is to get executed by the town less often than other bots.
 
@@ -263,9 +263,9 @@ Final 41.94% · Pre 3rd of 8 (60.00%; seer 87.5%) · [post](https://web.archive.
 ### 7th (tie) – Team 30 (Otto): Dan
 Final 41.94% · Re-run 5th (42.2%; best seer at 45.1%) · [post](https://web.archive.org/web/20241204150510/https://openagi.discourse.group/t/team-30-submission-for-werewofl-agi-thon/2517) · code promised but never posted
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| Otto | **5 of 8** | **42.2% (474/1124)** | 72.3% (136/188) | 36.1% (338/936) | 45.1% (74/164) | 33.3% (52/156) | 34.4% (212/616) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| Otto | **42.2% (474/1124)**<br>5th of 8 | 72.3% (136/188)<br>2nd of 8 | 36.1% (338/936)<br>2nd of 8 | 45.1% (74/164)<br>**1st** of 8 | 33.3% (52/156)<br>5th of 8 | 34.4% (212/616)<br>4th of 8 |
 - **Defense:** truncates or limits what other players can feed into the model, and trims history when the context window is about to overflow.
 - **Banned-word list:** tried and dropped, because it made no difference.
 - **Base:** Sentient describes it as a slightly modified Super Simple agent that did best as seer and doctor.
@@ -273,30 +273,30 @@ Final 41.94% · Re-run 5th (42.2%; best seer at 45.1%) · [post](https://web.arc
 ### 10th – Team 36 (Pedro)
 Final 41.18% · Re-run 3rd (44.1%; doctor 40.7%, seer 41.3%) · no post
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| Pedro | **3 of 8** | **44.1% (496/1124)** | 67.8% (202/298) | 35.6% (294/826) | 41.3% (52/126) | 40.7% (66/162) | 32.7% (176/538) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| Pedro | **44.1% (496/1124)**<br>3rd of 8 | 67.8% (202/298)<br>3rd of 8 | 35.6% (294/826)<br>4th of 8 | 41.3% (52/126)<br>3rd of 8 | 40.7% (66/162)<br>**T-1st** of 8 | 32.7% (176/538)<br>7th of 8 |
 - Per Sentient, it's exactly the stock Super Simple agent: all history into an array, then one direct LLM call.
 - It still ranked 3rd in the re-run, which suggests most prompt engineering added little.
 
 ### 11th – Team 21 (Mary)
 Final 40.74% · Re-run 8th (38.8%; doctor 40.7%) · no post
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| Mary | **8 of 8** | **38.8% (436/1124)** | 57.4% (178/310) | 31.7% (258/814) | 28.1% (32/114) | 40.7% (66/162) | 29.7% (160/538) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| Mary | **38.8% (436/1124)**<br>8th of 8 | 57.4% (178/310)<br>8th of 8 | 31.7% (258/814)<br>8th of 8 | 28.1% (32/114)<br>6th of 8 | 40.7% (66/162)<br>**T-1st** of 8 | 29.7% (160/538)<br>8th of 8 |
 - Per Sentient, a slightly modified stock chain-of-thought agent that did relatively well as doctor.
 
 ### 12th – Team 46 (Tom), 14th – Team 7 (Julia)
 Final 40.00% and 35.48% · Re-run 7th (39.1%) and 6th (40.2%) · no posts or descriptions.
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| Tom | **7 of 8** | **39.1% (440/1124)** | 58.7% (168/286) | 32.5% (272/838) | 23.6% (34/144) | 27.1% (38/140) | 36.1% (200/554) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| Tom | **39.1% (440/1124)**<br>7th of 8 | 58.7% (168/286)<br>7th of 8 | 32.5% (272/838)<br>7th of 8 | 23.6% (34/144)<br>8th of 8 | 27.1% (38/140)<br>8th of 8 | 36.1% (200/554)<br>3rd of 8 |
 
-| Dec 2024 re-run | Rank | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
-|---|---|---|---|---|---|---|---|
-| Julia | **6 of 8** | **40.2% (452/1124)** | 60.4% (180/298) | 32.9% (272/826) | 30.6% (38/124) | 31.0% (36/116) | 33.8% (198/586) |
+| Dec 2024 re-run | Overall | Wolf | Villager team (all non-wolf) | Seer | Doctor | Regular villager |
+|---|---|---|---|---|---|---|
+| Julia | **40.2% (452/1124)**<br>6th of 8 | 60.4% (180/298)<br>6th of 8 | 32.9% (272/826)<br>6th of 8 | 30.6% (38/124)<br>5th of 8 | 31.0% (36/116)<br>6th of 8 | 33.8% (198/586)<br>5th of 8 |
 
 ### 15th – Team 5 (Jack): tjc7 / trepkakai
 Final 32.00% · [post](https://web.archive.org/web/20241112025556/https://openagi.discourse.group/t/agi-thon-werewolf-agent-team-5-implementation/2500) · [fork](https://github.com/cschubiner/AGIthon_werewolf-team5-archive) · [original](https://github.com/trepkakai/AGIthon_werewolf)
