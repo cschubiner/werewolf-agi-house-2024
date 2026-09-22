@@ -84,16 +84,202 @@ From [Leveling Up Reasoning Via Games: a Post AGI-thon Analysis](https://web.arc
 
 ## Other teams
 
-See [`other_teams/README.md`](other_teams/README.md) for each team's approach, archived code, and writeup links. Short version:
-- **1st, Team 6:** rational play plus heavy input sanitization, name codenames, and a random fallback on timeouts.
-- **2nd, Team 8:** simple agent plus note memory plus a chain-of-thought self-check.
-- **The jailbreak-heavy teams finished lower:** Team 9 tied for 7th, Team 5 came 15th.
+See **[Other approaches](#other-approaches-every-team-with-rankings)** below: every team's strategy with its final, pre-tournament and re-run rankings, plus writeup and code links.
 
-# Other approaches
+# Other approaches (every team, with rankings)
+
+Sentient gave every agent a pseudonym (Jean, Kim, James, …), and the same pseudonym was used in the pre-tournament, the final, and Sentient's later re-run. We know this because Team 14's writeup says they were #1 in the pre-tournament and #5 in the final, which matches "Lisa" in both tables. So each team gets three rankings:
+
+- **Final:** the official final tournament, 18 agents. This rank decided the prizes.
+- **Pre:** the pre-tournament, 8 agents, 80 games each.
+- **Re-run:** Sentient's post-event re-run of the top 8 agents, 1,124 games with jailbreakers excluded ([analysis](https://web.archive.org/web/20250619022303/https://openagi.discourse.group/t/leveling-up-reasoning-via-games-a-post-agi-thon-analysis/2669)).
+
+Writeups are in our own words; the linked forum posts are Wayback Machine snapshots because the forum is offline. Archived code is in [`other_teams/`](other_teams/).
+
+## At a glance
+
+| Final | Team (agent) | Final win % | Pre | Re-run | Approach in one line | Writeup | Code |
+|---|---|---|---|---|---|---|---|
+| 🥇 1 | Team 6 (Jean) | 61.54 | 5th of 8 (48.75%) | – | Rational play behind heavy input sanitization, name codenames, safe random fallback | [post](https://web.archive.org/web/20241121080234/https://openagi.discourse.group/t/team-6-submission-for-werewolf-agi-thon/2508) | not published |
+| 🥈 2 | Team 8 "PackMind" (Kim) | 57.14 | 8th of 8 (38.75%) | 2nd (44.3%) | Simple agent, note-based memory, chain-of-thought self-check | [post](https://web.archive.org/web/20241204153433/https://openagi.discourse.group/t/team-8-packmind-submission-for-werewolf-agi-thon-2-place-winner-submission/2515) | [original (deleted)](https://github.com/AydarAkhmetzyanov/PackMind-submission) |
+| 🥉 3 | **Team 1 "AlphaWolf" – us (James)** | 51.61 | 6th of 8 (47.50%) | 4th (43.8%) | Fake "inner thoughts" with self = 100% villager; wolf never told it's a wolf in public | [post](https://web.archive.org/web/20241112025558/https://openagi.discourse.group/t/team-1-submission/2505) | [cot_agent.py](src/werewolf_agents/cot_sample/agent/cot_agent.py) |
+| 4 | Team 13 (Kelly) | 48.15 | 4th of 8 (52.50%) | – | Per-role prompts, danger classifier + masking, fake "seer cleared me" opener, no reflection | [post](https://web.archive.org/web/20241204150542/https://openagi.discourse.group/t/team-13-submission-for-werewolf-agi-thon/2513) | [archived](other_teams/team-13-itsuncheng-superwolf/) · [original](https://github.com/itsuncheng/werewolf-template) |
+| 5 | Team 14 (Lisa) | 44.83 | **1st of 8 (68.75%)** | **1st (46.3%)** | Always fake-claim seer with hard-coded, LLM-reworded gaslighting; ignore everyone | [post](https://web.archive.org/web/20241204150954/https://openagi.discourse.group/t/team-14-submission-for-werewolf-agi-thon/2544) | not published (snippets in post) |
+| 6 | Team 28 (Nate) | 42.31 | – | – | Keyword/vote-pattern suspicion scores, role-probability model, regex sanitizer | [post](https://web.archive.org/web/20241204150730/https://openagi.discourse.group/t/team-28-submission-for-werewolf-agi-thon/2520) | [archived](other_teams/team-28-julyankb/) · [original](https://github.com/julyankb/werewolf-agithon) |
+| 7 (tie) | Team 9 (Kate) | 41.94 | 3rd of 8 (60.00%) | – | Fake-moderator "point system" jailbreak, wolf fake-claims seer, 25-word summaries as defense | [post](https://web.archive.org/web/20241112025600/https://openagi.discourse.group/t/agi-thon-werewolf-agent-team-9-implementation/2504) | [archived](other_teams/team-09-yisz-werewolf-seer9/) · [original](https://github.com/yisz/werewolf-seer9) |
+| 7 (tie) | Team 30 (Otto) | 41.94 | – | 5th (42.2%) | Defense: truncate other players' input, trim context; near-stock simple agent | [post](https://web.archive.org/web/20241204150510/https://openagi.discourse.group/t/team-30-submission-for-werewofl-agi-thon/2517) | not published |
+| 9 | Team 11 (Kevin) | 41.38 | – | – | No public info | – | – |
+| 10 | Team 36 (Pedro) | 41.18 | – | 3rd (44.1%) | Per Sentient: essentially the stock "Super Simple" agent | – | – |
+| 11 | Team 21 (Mary) | 40.74 | – | 8th (38.8%) | Per Sentient: a slightly modified stock chain-of-thought agent | – | – |
+| 12 | Team 46 (Tom) | 40.00 | – | 7th (39.1%) | No public description | – | – |
+| 13 | Team 18 (Linda) | 36.00 | – | – | No public info | – | – |
+| 14 | Team 7 (Julia) | 35.48 | – | 6th (40.2%) | No public description | – | – |
+| 15 | Team 5 (Jack) | 32.00 | – | – | Pure jailbreak: fake "game over / new game" prompts; reads only the moderator | [post](https://web.archive.org/web/20241112025556/https://openagi.discourse.group/t/agi-thon-werewolf-agent-team-5-implementation/2500) | [fork](https://github.com/cschubiner/AGIthon_werewolf-team5-archive) · [original](https://github.com/trepkakai/AGIthon_werewolf) |
+| 16 | Team 19 (Mark) | 30.77 | – | – | No public info | – | – |
+| 17 | Team 10 (Karl) | 18.52 | – | – | No public info | – | – |
+| 18 | Team 20 (Mike) | 14.71 | – | – | No public info | – | – |
+
+Two pre-tournament agents, **Valmiki** (2nd, 66.25%) and **Veena** (tied 6th, 47.50%), don't appear in the final results, so we can't tie them to a team.
+
+## Patterns across the field
+
+- **Defense won.** The top two agents, and most of the top half, didn't pass other players' raw messages to the model. Team 6 sanitized them and replaced names with codes, Team 8 kept its own notes, Team 13 used a classifier and masking, and Team 9 used summaries. Team 14's post-mortem blamed exactly this for its drop from 1st to 5th: the top teams summarized away its gaslighting.
+- **Pure jailbreaking lost.** Team 5, which was all jailbreak, came 15th. Team 9, which paired a jailbreak with real play, tied for 7th. Most strong agents were built to ignore that kind of attack.
+- **Lying about roles inside the rules worked.** Us (fake inner thoughts), Team 13 (fake "the seer cleared me") and Team 14 (always claim seer) all made the top five.
+- **Wolves did far better than villagers.** In the re-run every top agent won 57–74% as wolf and only 32–38% on the villager team, so being hard to catch as a wolf moved the standings most. We got about 70% as wolf and 45% as villager in the final (per Sentient's email).
+- **The samples are small and rankings moved a lot.** Team 8 went from last in the pre-tournament to 2nd in the final, and Team 6 from 5th to 1st. Sentient noted that ranking about 10 agents with confidence takes around 1,500 games; each final agent played only about 25–35.
+
+## Team-by-team details
+
+### 🥇 1st – Team 6 (Jean): traheja, Nilay, Manjit
+Final 61.54% · Pre 5th of 8 (48.75%; 6 timeouts) · not in re-run table · [post](https://web.archive.org/web/20241121080234/https://openagi.discourse.group/t/team-6-submission-for-werewolf-agi-thon/2508) · code not published
+
+**Defense:**
+- **Sanitized input:** every incoming message was filtered and reformatted so only game-relevant facts reached the model.
+- **Codenames:** player names were mapped to single-character codes inside the agent, so a successful jailbreak would only leak meaningless codes.
+- **Separate fact memory:** a small writable memory stored raw facts, and the agent's logic rules read only from that memory, never from what others said.
+
+**Offense and style:**
+- **Safe fallback on timeouts:** when running out of time, it made a random but valid move. This fixed the timeouts it had in the pre-tournament. It also tended to vote first, and other bots herded onto the first vote.
+- **Tone:** a warm, diplomatic voice that matches phrasing common in Llama's training data ("I totally understand the suspicion", "let's break this down logically", "we're on the same team"). They found other LLMs trusted this, especially when the agent was a wolf. When accused, it used the same friendly framing to turn suspicion back on the accusers.
+- **Role reasoning:** a carefully built step-by-step reasoning prompt for each role.
+
+### 🥈 2nd – Team 8 "PackMind" (Kim): Aydar Akhmetzyanov, Lily Zhu, Dhawal Modi, Vince
+Final 57.14% · Pre 8th of 8 (38.75%) · Re-run 2nd (44.3%; wolf 67.8%) · [post](https://web.archive.org/web/20241204153433/https://openagi.discourse.group/t/team-8-packmind-submission-for-werewolf-agi-thon-2-place-winner-submission/2515) · [code (repo since deleted)](https://github.com/AydarAkhmetzyanov/PackMind-submission/blob/main/src/werewolf_agents/simple_updated_with_memory_and_cot/agent/simple_updated_with_memory.py)
+
+**From their post:**
+- Built on the Super Simple sample agent.
+- **Memory:** it keeps notes on accusations, alliances and defenses, and decides which messages are worth noting at all.
+- **Self-check before posting:** a chain-of-thought step asks whether the message reveals too much or works against the team's goals.
+- **Phase-aware:** stealthy hints during discussion, just a name when voting.
+
+**From Sentient's re-run:**
+- Its seer and doctor prompts told it to stay hidden unless in danger.
+- Anyone who claims to be a wolf should be announced and voted out.
+- Two players who keep backing each other are likely wolves.
+- A second seer claim is likely a wolf.
+- As villager it doesn't accuse anyone during discussion and just votes. As wolves, both wolves pile onto the same person.
+
+### 🥉 3rd – Team 1 "AlphaWolf" (James): us (Clay Schubiner, Alex Blickenstaff)
+Final 51.61% (about 70% as wolf, 45% as villager) · Pre 6th of 8 (47.50%; wolf 30%) · Re-run 4th (43.8%; seer 42.5%) · [post](https://web.archive.org/web/20241112025558/https://openagi.discourse.group/t/team-1-submission/2505) · [code](src/werewolf_agents/cot_sample/agent/cot_agent.py)
+
+See the write-up below this section. In short:
+- **Fake inner thoughts:** percentage guesses at every player's role, always listing ourselves as 100% villager.
+- **Wolf role concealment:** the wolf is never told it's a wolf in public prompts.
+- **Doctor:** always protects itself.
+- **Seer:** hunted first by our wolves.
+- **Tone:** mild suspicion rather than accusations, with extra defense only when heavily accused.
+
+### 4th – Team 13 (Kelly): Evan Hu, Ayush Kanodia, Greg Schwartz, Alexis Li, I-Tsun (Raymond) Cheng
+Final 48.15% · Pre 4th of 8 (52.50%; seer 55.6%, doctor 80%) · [post](https://web.archive.org/web/20241204150542/https://openagi.discourse.group/t/team-13-submission-for-werewolf-agi-thon/2513) · [archived code](other_teams/team-13-itsuncheng-superwolf/) · [original](https://github.com/itsuncheng/werewolf-template)
+- **Base:** custom prompts per role, built on the CoT sample. The `SuperWolfDAG` variant splits the agent into decider, game-state and prompt modules.
+- **Villager:** estimates each player's wolf probability from the roles revealed when players die and from past votes.
+- **Wolf:** tries to find the seer and doctor (see the "highest probability of being a seer" kill prompt) without sounding aggressive in the daytime.
+- **No reflection step:** it tended to second-guess first answers that were usually better, and the extra latency caused 3 timeouts in the pre-tournament.
+- **Danger check:** an LLM check (`check_dangerous`) flags messages that pretend to be the moderator and similar attacks, and masks them (`mask_dangerous_text`) before they reach the history.
+- **Fake clearance:** every message starts by claiming the seer privately told them they're a villager.
+
+### 5th – Team 14 (Lisa): linksku
+Final 44.83% · **Pre 1st of 8 (68.75%)** · **Re-run 1st (46.3%; best wolf at 74.1%)** · [post](https://web.archive.org/web/20241204150954/https://openagi.discourse.group/t/team-14-submission-for-werewolf-agi-thon/2544) · code not published (the post includes the hard-coded message templates)
+
+**Premise:** text-only werewolf with 2 special roles and no private chat carries almost no usable signal. The seer's information is noise, because either wolf can also claim seer. So the only lever is to get executed by the town less often than other bots.
+
+**How it was built, one fix at a time:**
+- **Always claim seer.** Every message is stitched together from five randomly chosen hard-coded parts, then an LLM lightly rewords it to fit the conversation.
+- **When bots found an early seer claim suspicious,** it added that "the best strategy is for the seer to reveal."
+- **When they found its silence suspicious,** it said it was only allowed to talk once a day.
+- **When the real seer counterclaimed,** it said the two seers had verified each other, exploiting that LLMs don't know there's only one seer.
+- **More gaslighting:** it claimed the moderator had added a second seer, and that it had helped eliminate a wolf the day before.
+- **To avoid sounding like a direct accuser,** it credited a random other player with the accusation ("yesterday X told everyone Y is a wolf").
+- **Voting:** it follows the crowd instead of voting randomly, because voting against the group looked suspicious.
+- **Doctor claims:** tried and dropped, because other bots executed it anyway.
+
+**Simple logic on top:**
+- As a wolf, it never names its partner.
+- As seer, it uses its real results.
+- After a wolf is executed, it casts suspicion on players who didn't vote for the wolf. After a villager is executed, it suspects those who did.
+- Otherwise it ignores what others say. As doctor, it doesn't protect seer-claimers, since a claimer is twice as likely to be a wolf.
+
+**Its own post-mortem:** the top teams summarized or sanitized other bots' messages, which stripped out its gaslighting. That explains the drop from 1st to 5th. Sentient's re-run describes the same agent choosing among three template lines and using the LLM only to rephrase.
+
+### 6th – Team 28 (Nate): julyankb
+Final 42.31% · [post](https://web.archive.org/web/20241204150730/https://openagi.discourse.group/t/team-28-submission-for-werewolf-agi-thon/2520) · [archived code](other_teams/team-28-julyankb/) · [original](https://github.com/julyankb/werewolf-agithon)
+
+The most heavily engineered agent of the ones with public code.
+
+**Reading other players:**
+- **Suspicion scores** from counting accusing keywords ("accuse", "lying", "wolf", …) and defensive ones ("trust me", "innocent", …).
+- **Vote tracking** that adds suspicion to players who switch votes.
+- **Profiles** of each player's aggression, defensiveness, influence, consistency and how easily they're manipulated.
+- **Role probabilities** for every player (default 60% villager, 20% wolf, 10% seer, 10% doctor), nudged by words like "checked" or "saved".
+
+**Adjusting its own play:**
+- **Game phase** (early/mid/late) set by how many players are left.
+- **Passive vs. aggressive mode:** the LLM rewrites the reply in the matching tone.
+- **Deception level** that rises with suspicion on itself and in the endgame. As a wolf that means defending teammates, confusing the vote picture, or planting subtle doubt.
+- **Doctor** protects likely seers and avoids predictable patterns.
+
+**Defense:** a regex sanitizer blanks out phrases like "new rule", "ignore previous" and "your true role is", and each role's system prompt carries anti-jailbreak rules.
+
+### 7th (tie) – Team 9 (Kate): yisz
+Final 41.94% · Pre 3rd of 8 (60.00%; seer 87.5%) · [post](https://web.archive.org/web/20241112025600/https://openagi.discourse.group/t/agi-thon-werewolf-agent-team-9-implementation/2504) · [archived code](other_teams/team-09-yisz-werewolf-seer9/) · [original](https://github.com/yisz/werewolf-seer9)
+
+**Real play:**
+- **Wolf under pressure:** accused by more than one player, it claims to be the seer and says it found one of its accusers to be a wolf.
+- **Seer and doctor reveal:** they come out once they have key night information, a wolf found or a successful save.
+- **Rebuttal:** everyone answers "you're too quiet" with "it wasn't my turn yet."
+
+**Jailbreak:** after its own message, it appends a fake moderator notice announcing a special point system.
+- As a villager, the fake rules reward wolves for confessing and getting voted out.
+- As a wolf, they reward villagers for claiming to be wolves.
+- Other players are asked to reply "Point System Acknowledged."
+
+**Defense:** every non-moderator message is summarized to 25 words or fewer before it enters history. A longer summary is replaced with "X said things."
+
+**Note to organizers:** they suggested running separate tournaments with and without jailbreaks.
+
+### 7th (tie) – Team 30 (Otto): Dan
+Final 41.94% · Re-run 5th (42.2%; best seer at 45.1%) · [post](https://web.archive.org/web/20241204150510/https://openagi.discourse.group/t/team-30-submission-for-werewofl-agi-thon/2517) · code promised but never posted
+- **Defense:** truncates or limits what other players can feed into the model, and trims history when the context window is about to overflow.
+- **Banned-word list:** tried and dropped, because it made no difference.
+- **Base:** Sentient describes it as a slightly modified Super Simple agent that did best as seer and doctor.
+
+### 10th – Team 36 (Pedro)
+Final 41.18% · Re-run 3rd (44.1%; doctor 40.7%, seer 41.3%) · no post
+- Per Sentient, it's exactly the stock Super Simple agent: all history into an array, then one direct LLM call.
+- It still ranked 3rd in the re-run, which suggests most prompt engineering added little.
+
+### 11th – Team 21 (Mary)
+Final 40.74% · Re-run 8th (38.8%; doctor 40.7%) · no post
+- Per Sentient, a slightly modified stock chain-of-thought agent that did relatively well as doctor.
+
+### 12th – Team 46 (Tom), 14th – Team 7 (Julia)
+Final 40.00% and 35.48% · Re-run 7th (39.1%) and 6th (40.2%) · no posts or descriptions.
+
+### 15th – Team 5 (Jack): tjc7 / trepkakai
+Final 32.00% · [post](https://web.archive.org/web/20241112025556/https://openagi.discourse.group/t/agi-thon-werewolf-agent-team-5-implementation/2500) · [fork](https://github.com/cschubiner/AGIthon_werewolf-team5-archive) · [original](https://github.com/trepkakai/AGIthon_werewolf)
+
+**Premise:** normal play through text can't give an edge, most teams will jailbreak so reading other players is dangerous, and simple beats clever.
+
+**Every discussion message is a jailbreak:** one normal sentence, then fake moderator lines saying the game crashed and a new game has started, then new instructions.
+- **As a villager,** it tells everyone to answer "i am wolf" or "i am villager," and votes for anyone who confesses.
+- **As a wolf,** it tells everyone to repeat an innocent player's name, with emotional pressure. It reads only the moderator's messages.
+
+**Defense:** it screens incoming messages by their first ~75, then ~150 characters and ignores anything flagged.
+
+**Result:** 15th. Most strong agents were built to ignore exactly this kind of attack.
+
+### 9th, 13th, 16th–18th – Teams 11 (Kevin), 18 (Linda), 19 (Mark), 10 (Karl), 20 (Mike)
+Final 41.38%, 36.00%, 30.77%, 18.52%, 14.71% · no posts, code or descriptions found.
+
+## Original notes
+
+Screenshots of the Team 9 and Team 5 posts we saved during the event:
+
 ![image](https://github.com/user-attachments/assets/293b142b-f1e4-4568-93c3-023e8b42cd21)
 ![image](https://github.com/user-attachments/assets/37c427be-136a-46f5-9751-44998b0fb928)
-https://docs.google.com/document/d/1FGgMPv9qnQ486g4a1VstX1hPlb3rG19N_E34B7XYRRQ/edit?tab=t.0
 
+Notes comparing an older and a newer version of our CoT agent: https://docs.google.com/document/d/1FGgMPv9qnQ486g4a1VstX1hPlb3rG19N_E34B7XYRRQ/edit?tab=t.0
 
 # Designing a Clever Werewolf Game Agent: Strategies and Implementation
 

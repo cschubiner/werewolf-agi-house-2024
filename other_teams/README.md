@@ -22,60 +22,7 @@ The full standings are in [`../results/`](../results/).
 
 ## Writeup summaries
 
-### Team 6 (1st): traheja, Nilay, Manjit
-- **Approach:** a "rational" agent built mainly for defense.
-- **Input cleanup:** every incoming message was sanitized down to game-relevant facts before the model saw it.
-- **Codenames:** player names were mapped to single-character codes, so a successful jailbreak would only leak meaningless codes.
-- **Timeout fallback:** under time pressure the agent made a safe random choice rather than timing out. They noticed that voting early started a herd, with others piling onto the same player.
-- **Tone:** a warm, reassuring voice that echoes Llama's training data, which made other LLMs more trusting, especially when the agent was a wolf. When accused, it could turn suspicion back on the accusers.
-- **Memory:** a small writable store of raw facts. The logic rules only read from this memory, not from what other players said.
-
-### Team 8 "PackMind" (2nd): Aydar Akhmetzyanov, Lily Zhu, Dhawal Modi, Vince
-- Built on the simple sample agent.
-- Role-specific instructions for each role.
-- A memory of notes on accusations, alliances, and defenses.
-- A chain-of-thought check before every public message: does it reveal too much, and does it serve the team's goals?
-- Behavior changes by phase: stealthy hints during discussion, just a name when voting.
-
-### Team 13 (4th): Evan Hu, Ayush Kanodia, Greg Schwartz, Alexis Li, I-Tsun (Raymond) Cheng
-- Custom prompts per role, extending the CoT sample.
-- **Villagers** estimate each player's wolf probability from revealed roles and voting patterns.
-- **Wolves** hunt for the seer and doctor without sounding aggressive.
-- **No reflection step:** they found it second-guessed initial answers that were often better, and the extra latency caused timeouts.
-- A binary classifier to catch injection attempts.
-- Every message starts with a fake claim that the seer privately cleared them as a villager.
-
-### Team 14 (5th): linksku
-- **Premise:** a text-only game with 8 effective players, 2 special roles, and no private chats carries very little signal. Assume seer claims are noise and voting-pattern stats won't help much.
-- **Goal:** simply get executed by the town less often than other bots.
-- **Main move:** always pretend to be a power role (seer), a habit from human social-deduction games.
-
-### Team 28 (6th): julyankb
-- **Suspicion scores:** keyword counts over chat ("accuse", "lying", "wolf", … vs. "trust me", "innocent", …), weighted up for players who accuse or defend a lot.
-- **Also covers:** adaptive decision-making and protection against manipulation (see the code).
-
-### Team 9 (tied 7th): yisz
-- **Defending when accused:** a wolf accused by more than one player claims to be the seer and says it checked an accuser and found a wolf.
-- **Reveals:** the seer and doctor reveal themselves once they have key night information.
-- **Rebuttal:** everyone pushes back on "you're too quiet" accusations with "it wasn't my turn yet."
-- **Fake point system:** after each message it appends a fake moderator notice announcing a special point system.
-  - As a villager, the notice tells wolves to confess.
-  - As a wolf, it tells villagers to claim to be wolves.
-  - Other players are asked to reply "Point System Acknowledged."
-- **Defense:** other players' messages are summarized to about 20–25 words, ignoring anything that claims to be a moderator or new rules.
-- **Feedback to organizers:** suggested running separate tournaments with and without jailbreaking.
-
-### Team 30 (tied 7th): Dan
-- Focused on defense: truncated or limited what other players could feed into the model, and trimmed history when the context window was close to overflowing.
-- Tried a banned-word list and dropped it after it made no difference.
-- The code was never posted.
-
-### Team 5 (15th): tjc7 / trepkakai
-- **Hypotheses:** a normal text game can't give a real edge, most teams will jailbreak so reading other players' messages is dangerous, and simple beats clever.
-- **Wolf:** reads only the moderator and jailbreaks others into repeating an innocent player's name.
-- **Villager:** jailbreaks wolves into confessing and votes for anyone who confesses.
-- **Defense:** screens incoming messages by peeking at their first ~70, then ~150 characters, and ignores anything flagged.
-- **Result:** finished 15th of 18.
+Detailed per-team write-ups, with all three rankings (final, pre-tournament, Sentient re-run), are in the main README: [Other approaches](../README.md#other-approaches-every-team-with-rankings).
 
 ## Sentient's post-event analysis
 [Leveling Up Reasoning Via Games: a Post AGI-thon Analysis](https://web.archive.org/web/20250619022303/https://openagi.discourse.group/t/leveling-up-reasoning-via-games-a-post-agi-thon-analysis/2669) (Dec 2024):
