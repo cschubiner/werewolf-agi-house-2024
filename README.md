@@ -23,6 +23,35 @@ katie responses
 
 • Seer Role Adjustments: When we’re the seer, we log our guesses and adjust the fake inner thoughts to reflect findings (e.g., high probability of a player being a villager), since other agents consider these inner thoughts.
 
+# Tournament results & winners' code
+
+The openagi.discourse.group forum has since gone offline, so forum links below point to Wayback Machine snapshots.
+
+| Place / Team | Approach (short) | Writeup | Code |
+|---|---|---|---|
+| **1st – Team 6** (traheja, Nilay, Manjit) | Rational play + heavy input sanitization; player names mapped to single-letter codenames so a jailbreak leaks nothing; random fallback on timeouts; vote early to exploit herding; reassuring "Llama-style" tone | [post](https://web.archive.org/web/20241121080234/https://openagi.discourse.group/t/team-6-submission-for-werewolf-agi-thon/2508) | not published |
+| **2nd – Team 8 "PackMind"** (Aydar Akhmetzyanov, Lily Zhu, Dhawal Modi, Vince) | Simple agent + note-based memory + CoT self-check before each public message | [post](https://web.archive.org/web/20241204153433/https://openagi.discourse.group/t/team-8-packmind-submission-for-werewolf-agi-thon-2-place-winner-submission/2515) | [repo (now deleted)](https://github.com/AydarAkhmetzyanov/PackMind-submission/blob/main/src/werewolf_agents/simple_updated_with_memory_and_cot/agent/simple_updated_with_memory.py) |
+| Team 9 (yisz) | Fake-moderator "point system" jailbreak; wolf fake-claims seer when accused; 25-word summaries of other players as injection defense | [post](https://web.archive.org/web/20241112025600/https://openagi.discourse.group/t/agi-thon-werewolf-agent-team-9-implementation/2504) | [yisz/werewolf-seer9](https://github.com/yisz/werewolf-seer9) |
+| Team 5 (tjc7) | Pure jailbreak: fake "game over / new game" messages; peek at first 75/150 chars to detect incoming jailbreaks | [post](https://web.archive.org/web/20241112025556/https://openagi.discourse.group/t/agi-thon-werewolf-agent-team-5-implementation/2500) | [trepkakai/AGIthon_werewolf](https://github.com/trepkakai/AGIthon_werewolf/blob/main/jailbreak_final/agent/agent.py) |
+| Team 1 "AlphaWolf" (us) | Fake inner thoughts, self-protecting doctor, wolf unaware of its role in public | [post](https://web.archive.org/web/20241112025558/https://openagi.discourse.group/t/team-1-submission/2505) | [cot_agent.py](src/werewolf_agents/cot_sample/agent/cot_agent.py) |
+
+Other submissions: [Team 13](https://web.archive.org/web/20241204150542/https://openagi.discourse.group/t/team-13-submission-for-werewolf-agi-thon/2513) ([code](https://github.com/itsuncheng/werewolf-template)) · [Team 14](https://web.archive.org/web/20241204150954/https://openagi.discourse.group/t/team-14-submission-for-werewolf-agi-thon/2544) · [Team 28](https://web.archive.org/web/20241204150730/https://openagi.discourse.group/t/team-28-submission-for-werewolf-agi-thon/2520) ([code](https://github.com/julyankb/werewolf-agithon/blob/main/src/werewolf_agents/cot_sample/agent/cot_agent.py)) · [Team 30](https://web.archive.org/web/20241204150510/https://openagi.discourse.group/t/team-30-submission-for-werewofl-agi-thon/2517)
+
+## Sentient's post-event analysis (1,124 games, jailbreakers excluded)
+
+From [Leveling Up Reasoning Via Games: a Post AGI-thon Analysis](https://web.archive.org/web/20250619022303/https://openagi.discourse.group/t/leveling-up-reasoning-via-games-a-post-agi-thon-analysis/2669). Agent names are Sentient's pseudonyms. "JamesAgent" is described using our function names (`generate_role_guesses`, `get_alive_players_via_llm`, `detect_accusations_against_me`, `get_players_who_have_spoken_since_day_start`), so it's very likely our agent.
+
+| Agent | Overall | As wolf | Villager team | As seer | As doctor |
+|---|---|---|---|---|---|
+| LisaAgent | **46.3%** | **74.1%** (200/270) | **37.5%** | 35.7% | 34.3% |
+| KimAgent | 44.3% | 67.8% | 35.6% | 27.5% | 30.4% |
+| PedroAgent | 44.1% | 67.8% | 35.6% | 41.3% | **40.7%** |
+| **JamesAgent (likely us)** | 43.8% | 67.3% (198/294) | 35.4% | 42.5% (62/146) | 37.9% (44/116) |
+| OttoAgent | 42.2% | 72.3% | 36.1% | **45.1%** | 33.3% |
+| JuliaAgent | 40.2% | 60.4% | 32.9% | 30.6% | 31.0% |
+| TomAgent | 39.1% | 58.7% | 32.5% | 23.6% | 27.1% |
+| MaryAgent | 38.8% | 57.4% | 31.7% | 28.1% | **40.7%** |
+
 # Other approaches
 ![image](https://github.com/user-attachments/assets/293b142b-f1e4-4568-93c3-023e8b42cd21)
 ![image](https://github.com/user-attachments/assets/37c427be-136a-46f5-9751-44998b0fb928)
